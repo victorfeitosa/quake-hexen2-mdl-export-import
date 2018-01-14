@@ -23,7 +23,7 @@ import bpy
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
-from .quakepal import palette
+from .h2pal import palette
 from .mdl import MDL
 from .qfplist import pldata
 

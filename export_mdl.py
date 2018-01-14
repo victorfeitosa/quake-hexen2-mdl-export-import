@@ -24,8 +24,8 @@ from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
 from .qfplist import pldata, PListError
-from .quakepal import palette
-from .quakenorm import map_normal
+from .h2pal import palette
+from .h2norm import map_normal
 from .mdl import MDL
 
 def check_faces(mesh):
