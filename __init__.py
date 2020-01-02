@@ -22,16 +22,16 @@
 # <pep8 compliant>
 
 bl_info = {
-    "name": "HexenII MDL format",
-    "author": "Bill Currie",
-    "blender": (2, 6, 3),
+    "name": "Quake and Hexen II MDL format",
+    "author": "Victor Feitosa & Bill Currie",
+    "blender": (2, 80, 0),
     "api": 35622,
     "location": "File > Import-Export",
-    "description": "Import-Export HexenII MDL (version 6) files. (.mdl)",
+    "description": "Import-Export Quake and HexenII MDL files. (.mdl)",
     "warning": "not even alpha",
     "wiki_url": "",
     "tracker_url": "",
-#    "support": 'OFFICIAL',
+   "support": 'UNOFFICIAL',
     "category": "Import-Export"}
 
 # To support reload properly, try to access a package var, if it's there,
@@ -97,7 +97,7 @@ class QFMDLSettings(bpy.types.PropertyGroup):
         description="16 bit vertex coordinates: QuakeForge only")
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
-    '''Load a HexenII MDL (v6) File'''
+    '''Load a Quake/Hexen II MDL File'''
     bl_idname = "import_mesh.hexenii_mdl_v6"
     bl_label = "Import HexenII MDL"
 
@@ -110,7 +110,7 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
         return import_mdl.import_mdl(self, context, **keywords)
 
 class ExportMDL6(bpy.types.Operator, ExportHelper):
-    '''Save a HexenII MDL (v6) File'''
+    '''Save a Quake/Hexen II MDL File'''
 
     bl_idname = "export_mesh.hexenii_mdl_v6"
     bl_label = "Export HexenII MDL"
@@ -157,21 +157,24 @@ def menu_func_import(self, context):
 def menu_func_export(self, context):
     self.layout.operator(ExportMDL6.bl_idname, text="HexenII MDL (.mdl)")
 
+classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDLPanel)
 
 def register():
-    bpy.utils.register_module(__name__)
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
     bpy.types.Object.qfmdl = PointerProperty(type=QFMDLSettings)
 
-    bpy.types.INFO_MT_file_import.append(menu_func_import)
-    bpy.types.INFO_MT_file_export.append(menu_func_export)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
 
-    bpy.types.INFO_MT_file_import.remove(menu_func_import)
-    bpy.types.INFO_MT_file_export.remove(menu_func_export)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
 if __name__ == "__main__":
     register()

@@ -25,7 +25,7 @@ from mathutils import Vector,Matrix
 
 from .qfplist import pldata, PListError
 from .h2pal import palette
-from .h2norm import map_normal
+from .qnorm import map_normal
 from .mdl import MDL
 
 def check_faces(mesh):
