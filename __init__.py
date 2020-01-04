@@ -31,7 +31,7 @@ bl_info = {
     "warning": "not even alpha",
     "wiki_url": "",
     "tracker_url": "",
-   "support": 'UNOFFICIAL',
+    "support": 'UNOFFICIAL',
     "category": "Import-Export"}
 
 # To support reload properly, try to access a package var, if it's there,
@@ -98,8 +98,8 @@ class QFMDLSettings(bpy.types.PropertyGroup):
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
     '''Load a Quake/Hexen II MDL File'''
-    bl_idname = "import_mesh.hexenii_mdl_v6"
-    bl_label = "Import HexenII MDL"
+    bl_idname = "import_mesh.quake_mdl_v6"
+    bl_label = "Import Quake / HexenII MDL"
 
     filename_ext = ".mdl"
     filter_glob = StringProperty(default="*.mdl", options={'HIDDEN'})
@@ -112,8 +112,8 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
 class ExportMDL6(bpy.types.Operator, ExportHelper):
     '''Save a Quake/Hexen II MDL File'''
 
-    bl_idname = "export_mesh.hexenii_mdl_v6"
-    bl_label = "Export HexenII MDL"
+    bl_idname = "export_mesh.quake_mdl_v6"
+    bl_label = "Export Quake / HexenII MDL"
 
     filename_ext = ".mdl"
     filter_glob = StringProperty(default="*.mdl", options={'HIDDEN'})
