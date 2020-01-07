@@ -30,7 +30,7 @@ class PListError(Exception):
 class pldata:
     def __init__(self, src = ''):
         self.src = src
-        self.pos = 0;
+        self.pos = 0
         self.end = len(self.src)
         self.line = 1
     def skip_space(self):
