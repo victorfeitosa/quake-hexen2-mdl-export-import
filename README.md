@@ -1,6 +1,7 @@
 # hexenii_mdl_import-export
-Hexen II MDL Importer/Exporter for Blender
+Hexen II MDL Importer/Exporter for Blender 2.8+
 
 # NOTE
-This model exporter/importer is a direct fork of Blender MDL import/export(https://en.blender.org/index.php/Extensions:2.6/Py/Scripts/Import-Export/Quake_mdl) by QuakeForge. The only difference so far is the adaptation to the Hexen II palette and the names obviously. I hold no rights to this product.
-This code is by no means of my conception and I hold no ownership of it. The fork was only made to provide an extra support for the Hexen II community for mapping and modding. All the code and functionalities are ownership of Quakeforge. Please support them!
+This model exporter/importer is a fork of Blender MDL import/export(https://en.blender.org/index.php/Extensions:2.6/Py/Scripts/Import-Export/Quake_mdl) by QuakeForge.
+This versions is updated to work with Blender 2.8 or greater and has some new features such as support for Hexen II palette.
+Roadmap can be found in the TODO.md file.

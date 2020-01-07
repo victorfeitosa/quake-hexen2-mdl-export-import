@@ -65,6 +65,11 @@ EFFECTS=(
     ('EF_TRACER3', "Tracer 3", "Purple split trail"),
 )
 
+PALETTES=(
+    ('Quake', "Original Quake palette", "Use this option for importing/exporting from Quake"),
+    ('HEXEN2', "Hexen II palette", "Use this option for importing/exporting from Hexen II"),
+)
+
 class QFMDLSettings(bpy.types.PropertyGroup):
     eyeposition = FloatVectorProperty(
         name="Eye Position",
@@ -80,6 +85,11 @@ class QFMDLSettings(bpy.types.PropertyGroup):
         items=EFFECTS,
         name="Effects",
         description="Particle trail effects")
+    palette = EnumProperty(
+        items=PALETTES,
+        name="Palettes",
+        description="Game color palette"
+    )
     #doesn't work :(
     #script = PointerProperty(
     #    type=bpy.types.Object,
@@ -142,6 +152,7 @@ class MDLPanel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         obj = context.active_object
+        layout.prop(obj.qfmdl, "palette")
         layout.prop(obj.qfmdl, "eyeposition")
         layout.prop(obj.qfmdl, "synctype")
         layout.prop(obj.qfmdl, "rotate")
