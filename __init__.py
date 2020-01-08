@@ -66,53 +66,55 @@ EFFECTS=(
 )
 
 PALETTES=(
-    ('Quake', "Original Quake palette", "Use this option for importing/exporting from Quake"),
+    ('QUAKE', "Original Quake palette", "Use this option for importing/exporting from Quake"),
     ('HEXEN2', "Hexen II palette", "Use this option for importing/exporting from Hexen II"),
 )
 
 class QFMDLSettings(bpy.types.PropertyGroup):
-    eyeposition = FloatVectorProperty(
+    eyeposition: FloatVectorProperty(
         name="Eye Position",
         description="View possion relative to object origin")
-    synctype = EnumProperty(
+    synctype: EnumProperty(
         items=SYNCTYPE,
         name="Sync Type",
         description="Add random time offset for automatic animations")
-    rotate = BoolProperty(
+    rotate: BoolProperty(
         name="Rotate",
         description="Rotate automatically (for pickup items)")
-    effects = EnumProperty(
+    effects: EnumProperty(
         items=EFFECTS,
         name="Effects",
         description="Particle trail effects")
-    palette = EnumProperty(
-        items=PALETTES,
-        name="Palettes",
-        description="Game color palette"
-    )
     #doesn't work :(
     #script = PointerProperty(
     #    type=bpy.types.Object,
     #    name="Script",
     #    description="Script for animating frames and skins")
-    script = StringProperty(
+    script: StringProperty(
         name="Script",
         description="Script for animating frames and skins")
-    xform = BoolProperty(
+    xform: BoolProperty(
         name="Auto transform",
         description="Auto-apply location/rotation/scale when exporting",
         default=True)
-    md16 = BoolProperty(
+    md16: BoolProperty(
         name="16-bit",
         description="16 bit vertex coordinates: QuakeForge only")
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
     '''Load a Quake/Hexen II MDL File'''
     bl_idname = "import_mesh.quake_mdl_v6"
-    bl_label = "Import Quake / HexenII MDL"
+    bl_label = "Import MDL"
 
     filename_ext = ".mdl"
-    filter_glob = StringProperty(default="*.mdl", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.mdl", options={'HIDDEN'})
+
+    palette: EnumProperty(
+        items=PALETTES,
+        name="MDL Palette",
+        description="Game color palette",
+        default="QUAKE"
+    )
 
     def execute(self, context):
         from . import import_mdl
@@ -123,10 +125,17 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
     '''Save a Quake/Hexen II MDL File'''
 
     bl_idname = "export_mesh.quake_mdl_v6"
-    bl_label = "Export Quake / HexenII MDL"
+    bl_label = "Export MDL"
 
     filename_ext = ".mdl"
-    filter_glob = StringProperty(default="*.mdl", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.mdl", options={'HIDDEN'})
+
+    palette: EnumProperty(
+        items=PALETTES,
+        name="MDL Palette",
+        description="Game color palette",
+        default="QUAKE"
+    )
 
     @classmethod
     def poll(cls, context):
@@ -138,7 +147,7 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         keywords = self.as_keywords (ignore=("check_existing", "filter_glob"))
         return export_mdl.export_mdl(self, context, **keywords)
 
-class MDLPanel(bpy.types.Panel):
+class MDL_PT_Panel(bpy.types.Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = 'object'
@@ -162,13 +171,13 @@ class MDLPanel(bpy.types.Panel):
         layout.prop(obj.qfmdl, "md16")
 
 def menu_func_import(self, context):
-    self.layout.operator(ImportMDL6.bl_idname, text="HexenII MDL (.mdl)")
+    self.layout.operator(ImportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(ExportMDL6.bl_idname, text="HexenII MDL (.mdl)")
+    self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
 
-classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDLPanel)
+classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
 
 def register():
     for cls in classes:
@@ -189,3 +198,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+    bpy.ops.import_mesh.quake_mdl_v6()
