@@ -28,6 +28,10 @@ from .mdl import MDL
 from .qfplist import pldata
 
 def make_verts(mdl, framenum, subframenum=0):
+    '''
+    Create vertices for the specified frame. If frame type is truthy, the current frame is a group of
+    frames and will load the frame group instead of the single frame.
+    '''
     frame = mdl.frames[framenum]
     if frame.type:
         frame = frame.frames[subframenum]
@@ -100,28 +104,28 @@ def load_skins(mdl):
 
 def setup_skins(mdl, uvs):
     load_skins(mdl)
-    img = mdl.images[0]   # use the first skin for now
-    uvlay = mdl.mesh.uv_layers.new(name=mdl.name)
-    uvloop = mdl.mesh.uv_layers[0]
-    for i, texpoly in enumerate(uvlay.data):
-        poly = mdl.mesh.polygons[i]
-        mdl_uv = uvs[i]
-        texpoly.image = img
-        for j,k in enumerate(poly.loop_indices):
-            uvloop.data[k].uv = mdl_uv[j]
-    mat = bpy.data.materials.new(mdl.name)
-    mat.diffuse_color = (1,1,1)
-    mat.use_raytrace = False
-    tex = bpy.data.textures.new(mdl.name, 'IMAGE')
-    tex.extension = 'CLIP'
-    tex.use_preview_alpha = True
-    tex.image = img
-    mat.texture_slots.add()
-    ts = mat.texture_slots[0]
-    ts.texture = tex
-    ts.use_map_alpha = True
-    ts.texture_coords = 'UV'
-    mdl.mesh.materials.append(mat)
+    # img = mdl.images[0]   # use the first skin for now
+    # uvlay = mdl.mesh.uv_layers.new(name=mdl.name)
+    # uvloop = mdl.mesh.uv_layers[0]
+    # for i, texpoly in enumerate(uvlay.data):
+    #     poly = mdl.mesh.polygons[i]
+    #     mdl_uv = uvs[i]
+    #     texpoly.image = img
+    #     for j,k in enumerate(poly.loop_indices):
+    #         uvloop.data[k].uv = mdl_uv[j]
+    # mat = bpy.data.materials.new(mdl.name)
+    # mat.diffuse_color = (1,1,1)
+    # mat.use_raytrace = False
+    # tex = bpy.data.textures.new(mdl.name, 'IMAGE')
+    # tex.extension = 'CLIP'
+    # tex.use_preview_alpha = True
+    # tex.image = img
+    # mat.texture_slots.add()
+    # ts = mat.texture_slots[0]
+    # ts.texture = tex
+    # ts.use_map_alpha = True
+    # ts.texture_coords = 'UV'
+    # mdl.mesh.materials.append(mat)
 
 def make_shape_key(mdl, framenum, subframenum=0):
     frame = mdl.frames[framenum]
@@ -133,7 +137,7 @@ def make_shape_key(mdl, framenum, subframenum=0):
         name = frame.name
     else:
         frame.name = name
-    frame.key = mdl.obj.shape_key_add(name)
+    frame.key = mdl.obj.shape_key_add(name=name)
     frame.key.value = 0.0
     mdl.keys.append(frame.key)
     s = Vector(mdl.scale)
@@ -143,20 +147,20 @@ def make_shape_key(mdl, framenum, subframenum=0):
                 (  0,  0,s.z,o.z),
                 (  0,  0,  0,  1)))
     for i, v in enumerate(frame.verts):
-        frame.key.data[i].co = m * Vector(v.r)
+        frame.key.data[i].co = m @ Vector(v.r)
 
 def build_shape_keys(mdl):
     mdl.keys = []
-    mdl.obj.shape_key_add("Basis")
+    mdl.obj.shape_key_add(name="Basis")
     mdl.mesh.shape_keys.name = mdl.name
     mdl.obj.active_shape_key_index = 0
     for i, frame in enumerate(mdl.frames):
         frame = mdl.frames[i]
         if frame.type:
             for j in range(len(frame.frames)):
-                make_shape_key(mdl, i, j)
+                make_shape_key(mdl=mdl, framenum=i, subframenum=j)
         else:
-            make_shape_key(mdl, i)
+            make_shape_key(mdl=mdl, framenum=i)
 
 def set_keys(act, data):
     for d in data:
@@ -338,7 +342,7 @@ def set_properties(mdl):
     mdl.obj.qfmdl.script = mdl.text.name #FIXME really want the text object
     mdl.obj.qfmdl.md16 = (mdl.ident == "MD16")
 
-def import_mdl(operator, context, filepath, palette):
+def import_mdl(operator, context, filepath, palette, importScale):
     bpy.context.preferences.edit.use_global_undo = False
 
     for obj in bpy.context.scene.objects:
