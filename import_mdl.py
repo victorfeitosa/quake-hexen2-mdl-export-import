@@ -81,6 +81,9 @@ def make_faces(mdl):
     return faces, uvs
 
 def load_skins(mdl):
+    '''
+    Loads the texture of the MDL model
+    '''
     def load_skin(skin, name):
         skin.name = name
         img = bpy.data.images.new(name, mdl.skinwidth, mdl.skinheight)
@@ -93,10 +96,10 @@ def load_skins(mdl):
                 # quake textures are top to bottom, but blender images
                 # are bottom to top
                 l = ((mdl.skinheight - 1 - j) * mdl.skinwidth + k) * 4
-                p[l + 0] = c[0] / 255.0
-                p[l + 1] = c[1] / 255.0
-                p[l + 2] = c[2] / 255.0
-                p[l + 3] = 1.0
+                p[l + 0] = c[0] / 255.0 # Red
+                p[l + 1] = c[1] / 255.0 # Green
+                p[l + 2] = c[2] / 255.0 # Blue
+                p[l + 3] = 1.0 # Alpha
         img.pixels[:] = p[:]
         img.pack()
         img.use_fake_user = True
@@ -135,6 +138,9 @@ def setup_skins(mdl, uvs):
     # mdl.mesh.materials.append(mat)
 
 def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
+    '''
+    Construct a shape key for the particular frame or subframe in the Blender model
+    '''
     frame = mdl.frames[framenum]
     name = "%s_%d" % (mdl.name, framenum)
     if frame.type:
@@ -157,6 +163,9 @@ def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
         frame.key.data[i].co = m @ Vector(v.r)
 
 def build_shape_keys(mdl, scaleFactor=1):
+    '''
+    Build all the shape keys of a MDL frames into the Blender model
+    '''
     mdl.keys = []
     mdl.obj.shape_key_add(name="Basis")
     mdl.mesh.shape_keys.name = mdl.name
@@ -170,6 +179,9 @@ def build_shape_keys(mdl, scaleFactor=1):
             make_shape_key(mdl=mdl, framenum=i, scaleFactor=scaleFactor)
 
 def set_keys(act, data):
+    '''
+    Set keyframe of animation
+    '''
     for d in data:
         key, co = d
         dp = """key_blocks["%s"].value""" % key.name
@@ -180,6 +192,9 @@ def set_keys(act, data):
             fc.keyframe_points[i].interpolation = 'LINEAR'
 
 def build_actions(mdl):
+    '''
+    Build animation actions
+    '''
     sk = mdl.mesh.shape_keys
     ad = sk.animation_data_create()
     track = ad.nla_tracks.new()
@@ -248,6 +263,9 @@ def merge_frames(mdl):
         i += 1
 
 def write_text(mdl):
+    '''
+    Creates text animation and configuration file for the imported model
+    '''
     header="""
     /*  This script represents the animation data within the model file. It
         is generated automatically on import, and is optional when exporting.
