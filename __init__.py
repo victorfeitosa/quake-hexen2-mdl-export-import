@@ -116,6 +116,12 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
         default="QUAKE"
     )
 
+    importScale: FloatProperty(
+        name="Scale factor",
+        description="Import model scale factor (usually 0.5)",
+        default=0.5
+    )
+
     def execute(self, context):
         from . import import_mdl
         keywords = self.as_keywords (ignore=("filter_glob",))
@@ -135,6 +141,12 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         name="MDL Palette",
         description="Game color palette",
         default="QUAKE"
+    )
+    
+    importScale: FloatProperty(
+        name="Scale factor",
+        description="Import model scale factor (usually 0.5)",
+        default=0.5
     )
 
     @classmethod
@@ -161,7 +173,6 @@ class MDL_PT_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         obj = context.active_object
-        layout.prop(obj.qfmdl, "palette")
         layout.prop(obj.qfmdl, "eyeposition")
         layout.prop(obj.qfmdl, "synctype")
         layout.prop(obj.qfmdl, "rotate")
@@ -198,4 +209,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-    bpy.ops.import_mesh.quake_mdl_v6()
+    bpy.ops.import_mesh.quake_mdl_v6('EXEC_DEFAULT')
