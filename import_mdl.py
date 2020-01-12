@@ -27,17 +27,18 @@ from .h2pal import palette
 from .mdl import MDL
 from .qfplist import pldata
 
-def make_verts(mdl, framenum, subframenum=0):
+def make_verts(mdl, framenum, subframenum=0, scaleFactor=1):
     '''
     Create vertices for the specified frame. If frame type is truthy, the current frame is a group of
     frames and will load the frame group instead of the single frame.
     '''
+
     frame = mdl.frames[framenum]
     if frame.type:
         frame = frame.frames[subframenum]
     verts = []
-    s = Vector(mdl.scale)
-    o = Vector(mdl.scale_origin)
+    s = Vector([scaleFactor * v for v in mdl.scale])
+    o = Vector([scaleFactor * v for v in mdl.scale_origin])
     m = Matrix(((s.x,  0,  0,o.x),
                 (  0,s.y,  0,o.y),
                 (  0,  0,s.z,o.z),
@@ -47,6 +48,10 @@ def make_verts(mdl, framenum, subframenum=0):
     return verts
 
 def make_faces(mdl):
+    '''
+    Create the faces according to the mdl description, referencing the verts created.
+    This also creates the uv coords for the faces
+    '''
     faces = []
     uvs = []
     for tri in mdl.tris:
@@ -127,7 +132,7 @@ def setup_skins(mdl, uvs):
     # ts.texture_coords = 'UV'
     # mdl.mesh.materials.append(mat)
 
-def make_shape_key(mdl, framenum, subframenum=0):
+def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
     frame = mdl.frames[framenum]
     name = "%s_%d" % (mdl.name, framenum)
     if frame.type:
@@ -140,8 +145,8 @@ def make_shape_key(mdl, framenum, subframenum=0):
     frame.key = mdl.obj.shape_key_add(name=name)
     frame.key.value = 0.0
     mdl.keys.append(frame.key)
-    s = Vector(mdl.scale)
-    o = Vector(mdl.scale_origin)
+    s = Vector([scaleFactor * v for v in mdl.scale])
+    o = Vector([scaleFactor * v for v in mdl.scale_origin])
     m = Matrix(((s.x,  0,  0,o.x),
                 (  0,s.y,  0,o.y),
                 (  0,  0,s.z,o.z),
@@ -149,7 +154,7 @@ def make_shape_key(mdl, framenum, subframenum=0):
     for i, v in enumerate(frame.verts):
         frame.key.data[i].co = m @ Vector(v.r)
 
-def build_shape_keys(mdl):
+def build_shape_keys(mdl, scaleFactor=1):
     mdl.keys = []
     mdl.obj.shape_key_add(name="Basis")
     mdl.mesh.shape_keys.name = mdl.name
@@ -158,9 +163,9 @@ def build_shape_keys(mdl):
         frame = mdl.frames[i]
         if frame.type:
             for j in range(len(frame.frames)):
-                make_shape_key(mdl=mdl, framenum=i, subframenum=j)
+                make_shape_key(mdl=mdl, framenum=i, subframenum=j, scaleFactor=scaleFactor)
         else:
-            make_shape_key(mdl=mdl, framenum=i)
+            make_shape_key(mdl=mdl, framenum=i, scaleFactor=scaleFactor)
 
 def set_keys(act, data):
     for d in data:
@@ -354,7 +359,7 @@ def import_mdl(operator, context, filepath, palette, importScale):
             "Unrecognized format: %s %d" % (mdl.ident, mdl.version))
         return {'CANCELLED'}
     faces, uvs = make_faces(mdl)
-    verts = make_verts(mdl, 0)
+    verts = make_verts(mdl, 0, scaleFactor=importScale)
     mdl.mesh = bpy.data.meshes.new(mdl.name)
     mdl.mesh.from_pydata(verts, [], faces)
     mdl.obj = bpy.data.objects.new(mdl.name, mdl.mesh)
@@ -364,7 +369,7 @@ def import_mdl(operator, context, filepath, palette, importScale):
     mdl.obj.select_set(True)
     setup_skins(mdl, uvs)
     if len(mdl.frames) > 1 or mdl.frames[0].type:
-        build_shape_keys(mdl)
+        build_shape_keys(mdl, scaleFactor=importScale)
         merge_frames(mdl)
         build_actions(mdl)
     write_text(mdl)
