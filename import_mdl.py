@@ -55,9 +55,11 @@ def make_faces(mdl):
     faces = []
     uvs = []
     for tri in mdl.tris:
+        # list of vertices in a tri
         tv = list(tri.verts)
-        sts = []
+        sts = [] # UV coords
         for v in tri.verts:
+            # UV vertex
             stv = mdl.stverts[v]
             s = stv.s
             t = stv.t
@@ -180,7 +182,7 @@ def set_keys(act, data):
 def build_actions(mdl):
     sk = mdl.mesh.shape_keys
     ad = sk.animation_data_create()
-    track = ad.nla_tracks.new();
+    track = ad.nla_tracks.new()
     track.name = mdl.name
     start_frame = 1.0
     for frame in mdl.frames:
@@ -207,7 +209,7 @@ def build_actions(mdl):
             for k in other_keys:
                 data.append((k, co))
         else:
-            sub.frameno = start_frame + j
+            subframe.frameno = start_frame + j
             data.append((frame.key, [(1.0, 1.0)]))
             if frame.key in other_keys:
                 del(other_keys[other_keys.index(frame.key)])
