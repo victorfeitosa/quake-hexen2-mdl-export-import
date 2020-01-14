@@ -114,28 +114,31 @@ def load_skins(mdl):
 
 def setup_skins(mdl, uvs):
     load_skins(mdl)
-    # img = mdl.images[0]   # use the first skin for now
-    # uvlay = mdl.mesh.uv_layers.new(name=mdl.name)
-    # uvloop = mdl.mesh.uv_layers[0]
-    # for i, texpoly in enumerate(uvlay.data):
-    #     poly = mdl.mesh.polygons[i]
-    #     mdl_uv = uvs[i]
-    #     texpoly.image = img
-    #     for j,k in enumerate(poly.loop_indices):
-    #         uvloop.data[k].uv = mdl_uv[j]
-    # mat = bpy.data.materials.new(mdl.name)
-    # mat.diffuse_color = (1,1,1)
-    # mat.use_raytrace = False
-    # tex = bpy.data.textures.new(mdl.name, 'IMAGE')
-    # tex.extension = 'CLIP'
-    # tex.use_preview_alpha = True
-    # tex.image = img
-    # mat.texture_slots.add()
-    # ts = mat.texture_slots[0]
-    # ts.texture = tex
-    # ts.use_map_alpha = True
-    # ts.texture_coords = 'UV'
-    # mdl.mesh.materials.append(mat)
+    img = mdl.images[0]   # use the first skin for now
+    mdl.mesh.uv_layers.new(name=mdl.name)
+    uvloop = mdl.mesh.uv_layers[0]
+    
+    for i, v in enumerate(uvs):
+        poly = mdl.mesh.polygons[i]
+        mdl_uv = uvs[i]
+        for j,k in enumerate(poly.loop_indices):
+            uvloop.data[k].uv = mdl_uv[j]
+    mat = bpy.data.materials.new(mdl.name)
+    mat.use_nodes = True
+
+    mat_out = mat.node_tree.nodes['Material Output']
+    emi = mat.node_tree.nodes.new('ShaderNodeEmission')
+    tex = mat.node_tree.nodes.new('ShaderNodeTexImage')
+    tex.image = img
+
+    mat.node_tree.links.new(emi.inputs['Color'], tex.outputs['Color'])
+    mat.node_tree.links.new(mat_out.inputs['Surface'], emi.outputs['Emission'])
+
+    # Remove old BSDF node
+    bsdf = mat.node_tree.nodes['Principled BSDF']
+    mat.node_tree.nodes.remove(bsdf)
+
+    mdl.mesh.materials.append(mat)
 
 def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
     '''
