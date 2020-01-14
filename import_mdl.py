@@ -20,10 +20,10 @@
 # <pep8 compliant>
 
 import bpy
+import importlib
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
-from .h2pal import palette
 from .mdl import MDL
 from .qfplist import pldata
 
@@ -80,7 +80,7 @@ def make_faces(mdl):
         uvs.append(sts)
     return faces, uvs
 
-def load_skins(mdl):
+def load_skins(mdl, palette):
     '''
     Loads the texture of the MDL model
     '''
@@ -112,8 +112,8 @@ def load_skins(mdl):
         else:
             load_skin(skin, "%s_%d" % (mdl.name, i))
 
-def setup_skins(mdl, uvs):
-    load_skins(mdl)
+def setup_skins(mdl, uvs, palette):
+    load_skins(mdl, palette)
     img = mdl.images[0]   # use the first skin for now
     mdl.mesh.uv_layers.new(name=mdl.name)
     uvloop = mdl.mesh.uv_layers[0]
@@ -372,6 +372,9 @@ def set_properties(mdl):
 
 def import_mdl(operator, context, filepath, palette, importScale):
     bpy.context.preferences.edit.use_global_undo = False
+    
+    palette_module_name = "..{0}pal".format(palette.lower())
+    palette = importlib.import_module(palette_module_name, __name__).palette
 
     for obj in bpy.context.scene.objects:
         obj.select_set(False)
@@ -390,7 +393,7 @@ def import_mdl(operator, context, filepath, palette, importScale):
     coll.objects.link(mdl.obj)
     bpy.context.view_layer.objects.active = mdl.obj
     mdl.obj.select_set(True)
-    setup_skins(mdl, uvs)
+    setup_skins(mdl, uvs, palette)
     if len(mdl.frames) > 1 or mdl.frames[0].type:
         build_shape_keys(mdl, scaleFactor=importScale)
         merge_frames(mdl)
