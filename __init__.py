@@ -186,7 +186,8 @@ def menu_func_import(self, context):
 
 
 def menu_func_export(self, context):
-    self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
+    pass
+    # self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
 
 classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
 
