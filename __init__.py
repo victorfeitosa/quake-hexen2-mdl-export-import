@@ -66,8 +66,8 @@ EFFECTS=(
 )
 
 PALETTES=(
-    ('QUAKE', "Quake palette", "Use this option for importing/exporting from Quake"),
-    ('HEXEN2', "Hexen II palette", "Use this option for importing/exporting from Hexen II"),
+    ('QUAKE', "Quake palette", "Import/Export to Quake"),
+    ('HEXEN2', "Hexen II palette", "Import/Export to Hexen II"),
 )
 
 class QFMDLSettings(bpy.types.PropertyGroup):
