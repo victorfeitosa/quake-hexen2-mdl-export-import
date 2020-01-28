@@ -130,6 +130,7 @@ def setup_skins(mdl, uvs, palette):
     emi = mat.node_tree.nodes.new('ShaderNodeEmission')
     tex = mat.node_tree.nodes.new('ShaderNodeTexImage')
     tex.image = img
+    tex.interpolation = 'Closest'
 
     mat.node_tree.links.new(emi.inputs['Color'], tex.outputs['Color'])
     mat.node_tree.links.new(mat_out.inputs['Surface'], emi.outputs['Emission'])
