@@ -66,7 +66,7 @@ EFFECTS=(
 )
 
 PALETTES=(
-    ('QUAKE', "Original Quake palette", "Use this option for importing/exporting from Quake"),
+    ('QUAKE', "Quake palette", "Use this option for importing/exporting from Quake"),
     ('HEXEN2', "Hexen II palette", "Use this option for importing/exporting from Hexen II"),
 )
 
@@ -102,7 +102,7 @@ class QFMDLSettings(bpy.types.PropertyGroup):
         description="16 bit vertex coordinates: QuakeForge only")
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
-    '''Load a Quake/Hexen II MDL File'''
+    '''Load a Quake MDL File'''
     bl_idname = "import_mesh.quake_mdl_v6"
     bl_label = "Import MDL"
 
@@ -128,7 +128,7 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
         return import_mdl.import_mdl(self, context, **keywords)
 
 class ExportMDL6(bpy.types.Operator, ExportHelper):
-    '''Save a Quake/Hexen II MDL File'''
+    '''Save a Quake MDL File'''
 
     bl_idname = "export_mesh.quake_mdl_v6"
     bl_label = "Export MDL"
@@ -186,8 +186,7 @@ def menu_func_import(self, context):
 
 
 def menu_func_export(self, context):
-    pass
-    # self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
+    self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
 
 classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
 
