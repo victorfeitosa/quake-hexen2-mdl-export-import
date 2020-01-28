@@ -20,11 +20,11 @@
 # <pep8 compliant>
 
 import bpy
+import importlib
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
 from .qfplist import pldata, PListError
-from .h2pal import palette
 from .qnorm import map_normal
 from .mdl import MDL
 
@@ -49,7 +49,7 @@ def check_faces(mesh):
     mesh.update()
     return True
 
-def convert_image(image):
+def convert_image(image, palette):
     size = image.size
     skin = MDL.Skin()
     skin.type = 0
@@ -85,12 +85,12 @@ def null_skin(size):
     return skin
 
 def active_uv(mesh):
-    for uvt in mesh.uv_textures:
+    for uvt in mesh.uv_layers:
         if uvt.active:
             return uvt
     return None
 
-def make_skin(mdl, mesh):
+def make_skin(mdl, mesh, palette):
     uvt = active_uv(mesh)
     if (not uvt or not uvt.data or not uvt.data[0].image):
         mdl.skinwidth, mdl.skinheight = (4, 4)
@@ -98,7 +98,7 @@ def make_skin(mdl, mesh):
     else:
         image = uvt.data[0].image
         mdl.skinwidth, mdl.skinheight = image.size
-        skin = convert_image(image)
+        skin = convert_image(image, palette)
     mdl.skins.append(skin)
 
 def build_tris(mesh):
@@ -207,7 +207,7 @@ def get_properties(operator, mdl, obj):
             return False
     return True
 
-def process_skin(mdl, skin, ingroup=False):
+def process_skin(mdl, skin, palette, ingroup=False):
     if 'skins' in skin:
         if ingroup:
             raise ValueError("nested skin group")
@@ -222,7 +222,7 @@ def process_skin(mdl, skin, ingroup=False):
         sk.times = intervals[1:len(skin['skins']) + 1]
         sk.skins = []
         for s in skin['skins']:
-            sk.skins.append(process_skin(mdl, s, True))
+            sk.skins.append(process_skin(mdl, s, palette, True))
         return sk
     else:
         #FIXME error handling
@@ -236,7 +236,7 @@ def process_skin(mdl, skin, ingroup=False):
                                     int(image.size[0]), int(image.size[1])))
         else:
             mdl.skinwidth, mdl.skinheight = image.size
-        sk = convert_image(image)
+        sk = convert_image(image, palette)
         return sk
 
 def process_frame(mdl, scene, frame, vertmap, ingroup = False,
@@ -274,9 +274,13 @@ def process_frame(mdl, scene, frame, vertmap, ingroup = False,
     fr.name = name
     return fr
 
-def export_mdl(operator, context, filepath):
+def export_mdl(operator, context, filepath, palette):
     obj = context.active_object
     mesh = obj.to_mesh(context.scene, True, 'PREVIEW') #wysiwyg?
+
+    palette_module_name = "..{0}pal".format(palette.lower())
+    palette = importlib.import_module(palette_module_name, __name__).palette
+
     #if not check_faces(mesh):
     #    operator.report({'ERROR'},
     #                    "Mesh has faces with more than 3 vertices.")
@@ -286,16 +290,16 @@ def export_mdl(operator, context, filepath):
     if not get_properties(operator, mdl, obj):
         return {'CANCELLED'}
     mdl.tris, mdl.stverts, vertmap = build_tris(mesh)
-    if mdl.script:
+    if mdl.script is not None:
         if 'skins' in mdl.script:
             for skin in mdl.script['skins']:
-                mdl.skins.append(process_skin(mdl, skin))
+                mdl.skins.append(process_skin(mdl, skin, palette))
         if 'frames' in mdl.script:
             for frame in mdl.script['frames']:
                 mdl.frames.append(process_frame(mdl, context.scene, frame,
                                                 vertmap))
     if not mdl.skins:
-        make_skin(mdl, mesh)
+        make_skin(mdl, mesh, palette)
     if not mdl.frames:
         curframe = context.scene.frame_current
         for fno in range(1, curframe + 1):
