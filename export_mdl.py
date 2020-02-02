@@ -111,8 +111,7 @@ def build_tris(mesh):
     # the layout. However, there seems to be nothing in the mdl format
     # preventing the use of duplicate 3d vertices to allow complete freedom
     # of the UV layout.
-    uvtex = active_uv(mesh)
-    uvfaces = mesh.uv_layers[uvtex.name].data
+    uvfaces = mesh.uv_layers.active.data
     stverts = []
     tris = []
     vertmap = []    # map mdl vert num to blender vert num (for 3d verts)
@@ -143,8 +142,8 @@ def convert_stverts(mdl, stverts):
         s, t = st
         # quake textures are top to bottom, but blender images
         # are bottom to top
-        s = int(s * (mdl.skinwidth - 1) + 0.5)
-        t = int((1 - t) * (mdl.skinheight - 1) + 0.5)
+        s = round(s * (mdl.skinwidth - 1) + 0.5)
+        t = round((1 - t) * (mdl.skinheight - 1) + 0.5)
         # ensure st is within the skin
         s = ((s % mdl.skinwidth) + mdl.skinwidth) % mdl.skinwidth
         t = ((t % mdl.skinheight) + mdl.skinheight) % mdl.skinheight
@@ -180,7 +179,7 @@ def calc_average_area(mdl):
         a = Vector(verts[0].r) - Vector(verts[1].r)
         b = Vector(verts[2].r) - Vector(verts[1].r)
         c = a.cross(b)
-        totalarea += (c * c) ** 0.5 / 2.0
+        totalarea += (c @ c) ** 0.5 / 2.0
     return totalarea / len(mdl.tris)
 
 def get_properties(operator, mdl, obj):
