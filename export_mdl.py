@@ -20,10 +20,10 @@
 # <pep8 compliant>
 
 import bpy
-from utils import getPaletteFromName
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
+from .utils import getPaletteFromName
 from .qfplist import pldata, PListError
 from .qnorm import map_normal
 from .mdl import MDL
