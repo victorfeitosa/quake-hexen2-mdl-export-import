@@ -265,8 +265,8 @@ def process_frame(mdl, scene, frame, vertmap, ingroup = False,
             return fr
         mdl.frames += fr.frames[:-1]
         return fr.frames[-1]
-    scene.frame_set(int(frameno), frameno - int(frameno))
-    mesh = mdl.obj.to_mesh(scene, True, 'PREVIEW') #wysiwyg?
+    scene.frame_set(round(frameno), subframe=(frameno - round(frameno)))
+    mesh = mdl.obj.to_mesh(preserve_all_data_layers=True) #wysiwyg?
     if mdl.obj.qfmdl.xform:
         mesh.transform(mdl.obj.matrix_world)
     fr = make_frame(mesh, vertmap)
@@ -279,6 +279,7 @@ def export_mdl(operator, context, filepath, palette, exportScale):
     depsgraph = context.evaluated_depsgraph_get()
     ob_eval = obj.evaluated_get(depsgraph)
     mesh = ob_eval.to_mesh()
+    bpy.ops.transform.resize(value=(exportScale, exportScale, exportScale))
 
     palette = getPaletteFromName(palette)
 
@@ -317,4 +318,6 @@ def export_mdl(operator, context, filepath, palette, exportScale):
     mdl.size = calc_average_area(mdl)
     scale_verts(mdl)
     mdl.write(filepath)
+    bpy.ops.transform.resize(value=(1/exportScale, 1/exportScale, 1/exportScale))
+
     return {'FINISHED'}
