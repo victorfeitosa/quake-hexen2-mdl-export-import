@@ -20,7 +20,7 @@
 # <pep8 compliant>
 
 import bpy
-import importlib
+from utils import getPaletteFromName
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
@@ -273,12 +273,14 @@ def process_frame(mdl, scene, frame, vertmap, ingroup = False,
     fr.name = name
     return fr
 
-def export_mdl(operator, context, filepath, palette):
+def export_mdl(operator, context, filepath, palette, exportScale):
     obj = context.active_object
-    mesh = obj.to_mesh(context.scene, True, 'PREVIEW') #wysiwyg?
+    obj.update_from_editmode()
+    depsgraph = context.evaluated_depsgraph_get()
+    ob_eval = obj.evaluated_get(depsgraph)
+    mesh = ob_eval.to_mesh()
 
-    palette_module_name = "..{0}pal".format(palette.lower())
-    palette = importlib.import_module(palette_module_name, __name__).palette
+    palette = getPaletteFromName(palette)
 
     #if not check_faces(mesh):
     #    operator.report({'ERROR'},
@@ -300,10 +302,14 @@ def export_mdl(operator, context, filepath, palette):
     if not mdl.skins:
         make_skin(mdl, mesh, palette)
     if not mdl.frames:
-        curframe = context.scene.frame_current
-        for fno in range(1, curframe + 1):
+        start_frame = context.scene.frame_start
+        end_frame = context.scene.frame_end + 1
+        for fno in range(start_frame, end_frame):
             context.scene.frame_set(fno)
-            mesh = obj.to_mesh(context.scene, True, 'PREVIEW') #wysiwyg?
+            obj.update_from_editmode()
+            depsgraph = context.evaluated_depsgraph_get()
+            ob_eval = obj.evaluated_get(depsgraph)
+            mesh = ob_eval.to_mesh()
             if mdl.obj.qfmdl.xform:
                 mesh.transform(mdl.obj.matrix_world)
             mdl.frames.append(make_frame(mesh, vertmap))
