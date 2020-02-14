@@ -116,7 +116,7 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
         default="QUAKE"
     )
 
-    importScale: FloatProperty(
+    import_scale: FloatProperty(
         name="Scale factor",
         description="Import model scale factor (usually 0.5)",
         default=0.1
@@ -143,7 +143,7 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         default="QUAKE"
     )
     
-    exportScale: FloatProperty(
+    export_scale: FloatProperty(
         name="Scale factor",
         description="Import model scale factor (usually 5)",
         default=10
