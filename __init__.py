@@ -22,16 +22,16 @@
 # <pep8 compliant>
 
 bl_info = {
-    "name": "HexenII MDL format",
-    "author": "Bill Currie",
-    "blender": (2, 6, 3),
+    "name": "Quake and Hexen II MDL format",
+    "author": "Victor Feitosa & Bill Currie",
+    "blender": (2, 80, 0),
     "api": 35622,
     "location": "File > Import-Export",
-    "description": "Import-Export HexenII MDL (version 6) files. (.mdl)",
+    "description": "Import-Export Quake and HexenII MDL files. (.mdl)",
     "warning": "not even alpha",
     "wiki_url": "",
     "tracker_url": "",
-#    "support": 'OFFICIAL',
+    "support": 'UNOFFICIAL',
     "category": "Import-Export"}
 
 # To support reload properly, try to access a package var, if it's there,
@@ -65,18 +65,23 @@ EFFECTS=(
     ('EF_TRACER3', "Tracer 3", "Purple split trail"),
 )
 
+PALETTES=(
+    ('QUAKE', "Quake palette", "Import/Export to Quake"),
+    ('HEXEN2', "Hexen II palette", "Import/Export to Hexen II"),
+)
+
 class QFMDLSettings(bpy.types.PropertyGroup):
-    eyeposition = FloatVectorProperty(
+    eyeposition: FloatVectorProperty(
         name="Eye Position",
         description="View possion relative to object origin")
-    synctype = EnumProperty(
+    synctype: EnumProperty(
         items=SYNCTYPE,
         name="Sync Type",
         description="Add random time offset for automatic animations")
-    rotate = BoolProperty(
+    rotate: BoolProperty(
         name="Rotate",
         description="Rotate automatically (for pickup items)")
-    effects = EnumProperty(
+    effects: EnumProperty(
         items=EFFECTS,
         name="Effects",
         description="Particle trail effects")
@@ -85,24 +90,37 @@ class QFMDLSettings(bpy.types.PropertyGroup):
     #    type=bpy.types.Object,
     #    name="Script",
     #    description="Script for animating frames and skins")
-    script = StringProperty(
+    script: StringProperty(
         name="Script",
         description="Script for animating frames and skins")
-    xform = BoolProperty(
+    xform: BoolProperty(
         name="Auto transform",
         description="Auto-apply location/rotation/scale when exporting",
         default=True)
-    md16 = BoolProperty(
+    md16: BoolProperty(
         name="16-bit",
         description="16 bit vertex coordinates: QuakeForge only")
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
-    '''Load a HexenII MDL (v6) File'''
-    bl_idname = "import_mesh.hexenii_mdl_v6"
-    bl_label = "Import HexenII MDL"
+    '''Load a Quake MDL File'''
+    bl_idname = "import_mesh.quake_mdl_v6"
+    bl_label = "Import MDL"
 
     filename_ext = ".mdl"
-    filter_glob = StringProperty(default="*.mdl", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.mdl", options={'HIDDEN'})
+
+    palette: EnumProperty(
+        items=PALETTES,
+        name="MDL Palette",
+        description="Game color palette",
+        default="QUAKE"
+    )
+
+    import_scale: FloatProperty(
+        name="Scale factor",
+        description="Import model scale factor (usually 0.5)",
+        default=0.1
+    )
 
     def execute(self, context):
         from . import import_mdl
@@ -110,13 +128,26 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
         return import_mdl.import_mdl(self, context, **keywords)
 
 class ExportMDL6(bpy.types.Operator, ExportHelper):
-    '''Save a HexenII MDL (v6) File'''
+    '''Save a Quake MDL File'''
 
-    bl_idname = "export_mesh.hexenii_mdl_v6"
-    bl_label = "Export HexenII MDL"
+    bl_idname = "export_mesh.quake_mdl_v6"
+    bl_label = "Export MDL"
 
     filename_ext = ".mdl"
-    filter_glob = StringProperty(default="*.mdl", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.mdl", options={'HIDDEN'})
+
+    palette: EnumProperty(
+        items=PALETTES,
+        name="MDL Palette",
+        description="Game color palette",
+        default="QUAKE"
+    )
+    
+    export_scale: FloatProperty(
+        name="Scale factor",
+        description="Import model scale factor (usually 5)",
+        default=10
+    )
 
     @classmethod
     def poll(cls, context):
@@ -128,7 +159,7 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         keywords = self.as_keywords (ignore=("check_existing", "filter_glob"))
         return export_mdl.export_mdl(self, context, **keywords)
 
-class MDLPanel(bpy.types.Panel):
+class MDL_PT_Panel(bpy.types.Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = 'object'
@@ -151,27 +182,31 @@ class MDLPanel(bpy.types.Panel):
         layout.prop(obj.qfmdl, "md16")
 
 def menu_func_import(self, context):
-    self.layout.operator(ImportMDL6.bl_idname, text="HexenII MDL (.mdl)")
+    self.layout.operator(ImportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(ExportMDL6.bl_idname, text="HexenII MDL (.mdl)")
+    self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
 
+classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
 
 def register():
-    bpy.utils.register_module(__name__)
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
     bpy.types.Object.qfmdl = PointerProperty(type=QFMDLSettings)
 
-    bpy.types.INFO_MT_file_import.append(menu_func_import)
-    bpy.types.INFO_MT_file_export.append(menu_func_export)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
 
-    bpy.types.INFO_MT_file_import.remove(menu_func_import)
-    bpy.types.INFO_MT_file_export.remove(menu_func_export)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
 if __name__ == "__main__":
     register()
+    bpy.ops.import_mesh.quake_mdl_v6('EXEC_DEFAULT')

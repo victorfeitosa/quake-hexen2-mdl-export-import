@@ -74,7 +74,7 @@ z_group = (
     (Vector((0.4253, 0.6882, 0.5878)), (45,73,138,99,24,158,131,159)) )
 
 def map_normal(n):
-    fn = Vector((abs(n.x),abs(n.y),abs(n.z)));
+    fn = Vector((abs(n.x),abs(n.y),abs(n.z)))
     group = x_group
     if fn.y > fn.x and fn.y > fn.z:
         group = y_group
