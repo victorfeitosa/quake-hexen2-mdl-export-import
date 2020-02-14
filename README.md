@@ -2,7 +2,7 @@
 Hexen II MDL Importer/Exporter for Blender 2.8+
 
 # Download
-[Latest version](https://github.com/victorfeitosa/quake-hexen2-mdl-export-import/archive/adapting-to-blender-2-8.zip)
+[Latest version](https://github.com/victorfeitosa/quake-hexen2-mdl-export-import/archive/master.zip)
 
 # About
 ![Importer in action](screenshot.png)
