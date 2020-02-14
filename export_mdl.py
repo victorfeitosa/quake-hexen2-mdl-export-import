@@ -230,8 +230,8 @@ def calc_average_area(mdl):
     return totalarea / len(mdl.tris)
 
 
-def get_properties(operator, mdl, obj):
-    mdl.eyeposition = tuple(obj.qfmdl.eyeposition)
+def get_properties(operator, mdl, obj, export_scale):
+    mdl.eyeposition = tuple(map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
     mdl.synctype = MDL.SYNCTYPE[obj.qfmdl.synctype]
     mdl.flags = ((obj.qfmdl.rotate and MDL.EF_ROTATE or 0)
                  | MDL.EFFECTS[obj.qfmdl.effects])
@@ -308,13 +308,13 @@ def process_frame(mdl, scene, frame, vertmap, ingroup=False,
     return fr
 
 
-def export_mdl(operator, context, filepath, palette, exportScale):
+def export_mdl(operator, context, filepath, palette, export_scale):
     obj = context.active_object
     obj.update_from_editmode()
     depsgraph = context.evaluated_depsgraph_get()
     ob_eval = obj.evaluated_get(depsgraph)
     mesh = ob_eval.to_mesh()
-    bpy.ops.transform.resize(value=(exportScale, exportScale, exportScale))
+    bpy.ops.transform.resize(value=(export_scale, export_scale, export_scale))
 
     palette = getPaletteFromName(palette)
 
@@ -324,7 +324,7 @@ def export_mdl(operator, context, filepath, palette, exportScale):
     #    return {'CANCELLED'}
     mdl = MDL(obj.name)
     mdl.obj = obj
-    if not get_properties(operator, mdl, obj):
+    if not get_properties(operator, mdl, obj, export_scale):
         return {'CANCELLED'}
     mdl.tris, mdl.stverts, vertmap = build_tris(mesh)
     if not mdl.skins:
@@ -347,6 +347,6 @@ def export_mdl(operator, context, filepath, palette, exportScale):
     scale_verts(mdl)
     mdl.write(filepath)
     bpy.ops.transform.resize(
-        value=(1/exportScale, 1/exportScale, 1/exportScale))
+        value=(1/export_scale, 1/export_scale, 1/export_scale))
 
     return {'FINISHED'}

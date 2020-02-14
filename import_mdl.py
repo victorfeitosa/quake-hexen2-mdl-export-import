@@ -27,7 +27,7 @@ from mathutils import Vector,Matrix
 from .mdl import MDL
 from .qfplist import pldata
 
-def make_verts(mdl, framenum, subframenum=0, scaleFactor=1):
+def make_verts(mdl, framenum, subframenum=0, scalefactor=1):
     '''
     Create vertices for the specified frame. If frame type is truthy, the current frame is a group of
     frames and will load the frame group instead of the single frame.
@@ -37,8 +37,8 @@ def make_verts(mdl, framenum, subframenum=0, scaleFactor=1):
     if frame.type:
         frame = frame.frames[subframenum]
     verts = []
-    s = Vector([scaleFactor * v for v in mdl.scale])
-    o = Vector([scaleFactor * v for v in mdl.scale_origin])
+    s = Vector([scalefactor * v for v in mdl.scale])
+    o = Vector([scalefactor * v for v in mdl.scale_origin])
     m = Matrix(((s.x,  0,  0,o.x),
                 (  0,s.y,  0,o.y),
                 (  0,  0,s.z,o.z),
@@ -141,7 +141,7 @@ def setup_skins(mdl, uvs, palette):
 
     mdl.mesh.materials.append(mat)
 
-def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
+def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
     '''
     Construct a shape key for the particular frame or subframe in the Blender model
     '''
@@ -157,8 +157,8 @@ def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
     frame.key = mdl.obj.shape_key_add(name=name)
     frame.key.value = 0.0
     mdl.keys.append(frame.key)
-    s = Vector([scaleFactor * v for v in mdl.scale])
-    o = Vector([scaleFactor * v for v in mdl.scale_origin])
+    s = Vector([scalefactor * v for v in mdl.scale])
+    o = Vector([scalefactor * v for v in mdl.scale_origin])
     m = Matrix(((s.x,  0,  0,o.x),
                 (  0,s.y,  0,o.y),
                 (  0,  0,s.z,o.z),
@@ -166,7 +166,7 @@ def make_shape_key(mdl, framenum, subframenum=0, scaleFactor=1):
     for i, v in enumerate(frame.verts):
         frame.key.data[i].co = m @ Vector(v.r)
 
-def build_shape_keys(mdl, scaleFactor=1):
+def build_shape_keys(mdl, scalefactor=1):
     '''
     Build all the shape keys of a MDL frames into the Blender model
     '''
@@ -178,9 +178,9 @@ def build_shape_keys(mdl, scaleFactor=1):
         frame = mdl.frames[i]
         if frame.type:
             for j in range(len(frame.frames)):
-                make_shape_key(mdl=mdl, framenum=i, subframenum=j, scaleFactor=scaleFactor)
+                make_shape_key(mdl=mdl, framenum=i, subframenum=j, scalefactor=scalefactor)
         else:
-            make_shape_key(mdl=mdl, framenum=i, scaleFactor=scaleFactor)
+            make_shape_key(mdl=mdl, framenum=i, scalefactor=scalefactor)
 
 def set_keys(act, data):
     '''
@@ -360,8 +360,8 @@ def parse_flags(flags):
     else:
         return 'EF_NONE'
 
-def set_properties(mdl):
-    mdl.obj.qfmdl.eyeposition = mdl.eyeposition
+def set_properties(mdl, scalefactor=1):
+    mdl.obj.qfmdl.eyeposition = tuple(map(lambda v: v*scalefactor, mdl.eyeposition))
     try:
         mdl.obj.qfmdl.synctype = MDL.SYNCTYPE[mdl.synctype]
     except IndexError:
@@ -371,7 +371,7 @@ def set_properties(mdl):
     mdl.obj.qfmdl.script = mdl.text.name #FIXME really want the text object
     mdl.obj.qfmdl.md16 = (mdl.ident == "MD16")
 
-def import_mdl(operator, context, filepath, palette, importScale):
+def import_mdl(operator, context, filepath, palette, import_scale):
     bpy.context.preferences.edit.use_global_undo = False
     
     palette_module_name = "..{0}pal".format(palette.lower())
@@ -386,7 +386,7 @@ def import_mdl(operator, context, filepath, palette, importScale):
             "Unrecognized format: %s %d" % (mdl.ident, mdl.version))
         return {'CANCELLED'}
     faces, uvs = make_faces(mdl)
-    verts = make_verts(mdl, 0, scaleFactor=importScale)
+    verts = make_verts(mdl, 0, scalefactor=import_scale)
     mdl.mesh = bpy.data.meshes.new(mdl.name)
     mdl.mesh.from_pydata(verts, [], faces)
     mdl.obj = bpy.data.objects.new(mdl.name, mdl.mesh)
@@ -396,11 +396,11 @@ def import_mdl(operator, context, filepath, palette, importScale):
     mdl.obj.select_set(True)
     setup_skins(mdl, uvs, palette)
     if len(mdl.frames) > 1 or mdl.frames[0].type:
-        build_shape_keys(mdl, scaleFactor=importScale)
+        build_shape_keys(mdl, scalefactor=import_scale)
         merge_frames(mdl)
         build_actions(mdl)
     write_text(mdl)
-    set_properties(mdl)
+    set_properties(mdl, scalefactor=import_scale)
 
     mdl.mesh.update()
 
