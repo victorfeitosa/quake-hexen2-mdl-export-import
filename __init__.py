@@ -209,3 +209,4 @@ def unregister():
 if __name__ == "__main__":
     register()
     bpy.ops.import_mesh.quake_mdl_v6('EXEC_DEFAULT')
+    bpy.ops.export_mesh.quake_mdl_v6('EXEC_DEFAULT')
