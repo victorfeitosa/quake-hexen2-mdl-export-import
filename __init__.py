@@ -28,9 +28,9 @@ bl_info = {
     "location": "File > Import-Export",
     "description": "Import-Export Quake and HexenII MDL files (version 6 mdl files)",
     "warning": "not even alpha",
-    "wiki_url": "https://github.com/victorfeitosa/quake-hexen2-mdl-export-import/wiki/Blender-Quake-Hexen-II-MDL-Import-Export",
-    "tracker_url": "https://github.com/victorfeitosa/quake-hexen2-mdl-export-import",
-    "support": 'UNOFFICIAL',
+    "wiki_url": "",
+    "tracker_url": "",
+    # "support": "UNOFFICIAL",
     "category": "Import-Export"}
 
 # To support reload properly, try to access a package var, if it's there,
@@ -208,5 +208,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-    bpy.ops.import_mesh.quake_mdl_v6('EXEC_DEFAULT')
-    bpy.ops.export_mesh.quake_mdl_v6('EXEC_DEFAULT')
