@@ -17,20 +17,19 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-# copied from io_scene_obj
-
 # <pep8 compliant>
 
 bl_info = {
     "name": "Quake and Hexen II MDL format",
-    "author": "Victor Feitosa & Bill Currie",
+    "author": "Bill Currie, Victor Feitosa",
     "blender": (2, 80, 0),
+    "version": (0, 8, 0),
     "api": 35622,
     "location": "File > Import-Export",
-    "description": "Import-Export Quake and HexenII MDL files. (.mdl)",
+    "description": "Import-Export Quake and HexenII MDL files (version 6 mdl files)",
     "warning": "not even alpha",
-    "wiki_url": "",
-    "tracker_url": "",
+    "wiki_url": "https://github.com/victorfeitosa/quake-hexen2-mdl-export-import/wiki/Blender-Quake-Hexen-II-MDL-Import-Export",
+    "tracker_url": "https://github.com/victorfeitosa/quake-hexen2-mdl-export-import",
     "support": 'UNOFFICIAL',
     "category": "Import-Export"}
 
