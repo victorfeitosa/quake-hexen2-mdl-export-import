@@ -2,7 +2,7 @@
 Hexen II MDL Importer/Exporter for Blender 2.8+
 
 # Download
-[Latest version](https://mega.nz/#!uVN0jSyA)
+[Latest version](https://mega.nz/#!uVN0jSyA!ybJuLSGy6i5efKwKcGVFtYqevUeU43Ct-DRz5Yc0n_8)
 
 # About
 ![Importer in action](screenshot.png)
