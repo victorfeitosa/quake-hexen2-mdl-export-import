@@ -2,7 +2,7 @@
 Import and export Quake and Hexen II MDL models in Blender 2.8+
 
 # Download
-[Latest version](https://mega.nz/#!uVN0jSyA!ybJuLSGy6i5efKwKcGVFtYqevUeU43Ct-DRz5Yc0n_8)
+[Latest version](https://mega.nz/file/zEcCmaxY#EmaYBQlk9v9L-Dkc3rt8UVm79DD3mdPyoUlHg49iha4)
 
 # About
 ![Importer in action](screenshot.png)
