@@ -10,6 +10,14 @@ This model exporter/importer is a fork of [Blender MDL import/export](https://en
 This versions is updated to work with Blender 2.8 or greater and has some new features such as support for Hexen II palette.
 Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation to MDL Exporter for Blender 2.8+. It can be found [here](https://bitbucket.org/khreathor/mdl-for-blender/wiki/Home).
 
+# How to Contribute
+## On Github
+- Create issues with a description and a minimum of steps to reproduce if it's a bug
+- Submit feature requests
+- Contact me to contribute with pull requests
+## Buy me coffee ☕️
+[ko-fi page](https://ko-fi.com/victorfeitosa)
+
 # Roadmap
 ## New features
 - Import/Export scale adjusts for the model and the `eyeposition` tag
