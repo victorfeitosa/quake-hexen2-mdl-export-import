@@ -353,7 +353,7 @@ class MDL:
         self.name = self.name.split('.')[0]
         self.ident = self.read_string(4)
         self.version = self.read_int()
-        if self.ident not in ["IDPO", "MD16", "RAP0"] or self.version not in [3, 6, 50]:
+        if self.ident not in ["IDPO", "MD16", "RAPO"] or self.version not in [3, 6, 50]:
             return None
         self.scale = self.read_float(3)
         self.scale_origin = self.read_float(3)
