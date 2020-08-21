@@ -118,7 +118,7 @@ def setup_skins(mdl, uvs, palette):
     mdl.mesh.uv_layers.new(name=mdl.name)
     uvloop = mdl.mesh.uv_layers[0]
     
-    for i, v in enumerate(uvs):
+    for i, _ in enumerate(uvs):
         poly = mdl.mesh.polygons[i]
         mdl_uv = uvs[i]
         for j,k in enumerate(poly.loop_indices):
