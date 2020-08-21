@@ -208,7 +208,7 @@ class MDL:
             self.write_name(mdl)
             self.write_verts(mdl)
         def read_name(self, mdl):
-            if mdl.version == 6:
+            if mdl.version >= 6:
                 name = mdl.read_string(16)
             else:
                 name = ""
@@ -216,7 +216,7 @@ class MDL:
                 name = name[:name.index("\0")]
             self.name = name
         def write_name(self, mdl):
-            if mdl.version == 6:
+            if mdl.version >= 6:
                 mdl.write_string(self.name, 16)
         def read_bounds(self, mdl):
             self.mins = mdl.read_byte(4)[:3]    #discard normal index
@@ -366,14 +366,17 @@ class MDL:
         if self.version == 6:
             self.flags = self.read_int()
             self.size = self.read_float()
-        if self.version == 50:
-            self.num_st_verts = self.read_ushort()
-        else:
             self.num_st_verts = numverts
+        if self.version == 50:
+            self.flags = self.read_int()
+            self.size = self.read_float()
+            self.num_st_verts = self.read_int()
+
         # read in the skin data
         self.skins = []
         for _ in range(numskins):
             self.skins.append(MDL.Skin().read(self))
+
         #read in the st verts (uv map)
         self.stverts = []
         for _ in range(self.num_st_verts):
@@ -406,7 +409,7 @@ class MDL:
         self.write_int(len(self.tris))
         self.write_int(len(self.frames))
         self.write_int(self.synctype)
-        if self.version == 6:
+        if self.version >= 6:
             self.write_int(self.flags)
             self.write_float(self.size)
         # write out the skin data
