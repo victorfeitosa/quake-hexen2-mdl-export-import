@@ -82,7 +82,7 @@ def make_faces(mdl):
 
 def load_skins(mdl, palette):
     '''
-    Loads the texture of the MDL model
+    Loads the texture pixel of the MDL model
     '''
     def load_skin(skin, name):
         skin.name = name
@@ -100,6 +100,11 @@ def load_skins(mdl, palette):
                 p[l + 1] = c[1] / 255.0 # Green
                 p[l + 2] = c[2] / 255.0 # Blue
                 p[l + 3] = 1.0 # Alpha
+
+                # Checks if color index is 0, if so set Alpha to 0
+                if (p[l], p[l+1], p[l+2], p[l+3]) == palette[0]:
+                    p[l + 3] = 0.0
+
         img.pixels[:] = p[:]
         img.pack()
         img.use_fake_user = True
@@ -113,16 +118,23 @@ def load_skins(mdl, palette):
             load_skin(skin, "%s_%d" % (mdl.name, i))
 
 def setup_skins(mdl, uvs, palette):
+    '''
+    Setup skin slots and materials and sets UV coordinates in the loaded texture
+    '''
     load_skins(mdl, palette)
     img = mdl.images[0]   # use the first skin for now
     mdl.mesh.uv_layers.new(name=mdl.name)
     uvloop = mdl.mesh.uv_layers[0]
     
+    # UV Loading=============
     for i, _ in enumerate(uvs):
         poly = mdl.mesh.polygons[i]
         mdl_uv = uvs[i]
         for j,k in enumerate(poly.loop_indices):
             uvloop.data[k].uv = mdl_uv[j]
+            
+            
+    # Material and texture loading=======
     mat = bpy.data.materials.new(mdl.name)
     mat.use_nodes = True
 
