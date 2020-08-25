@@ -101,10 +101,6 @@ def load_skins(mdl, palette):
                 p[l + 2] = c[2] / 255.0 # Blue
                 p[l + 3] = 1.0 # Alpha
 
-                # Checks if color index is 0, if so set Alpha to 0
-                if (p[l], p[l+1], p[l+2], p[l+3]) == palette[0]:
-                    p[l + 3] = 0.0
-
         img.pixels[:] = p[:]
         img.pack()
         img.use_fake_user = True
