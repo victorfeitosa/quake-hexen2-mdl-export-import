@@ -64,7 +64,7 @@ class MDL:
                 num = mdl.read_int()
                 self.times = mdl.read_float(num)
                 self.skins = []
-                for i in range(num):
+                for _ in range(num):
                     self.skins.append(MDL.Skin().read(mdl, 1))
                     num -= 1
                 return self
@@ -108,6 +108,25 @@ class MDL:
         def read(self, mdl):
             self.facesfront = mdl.read_int()
             self.verts = mdl.read_int(3)
+            return self
+        def write(self, mdl):
+            mdl.write_int(self.facesfront)
+            mdl.write_int(self.verts)
+    
+    class NTri:
+        def __init__(self, verts=None, facesfront=True, stverts=None):
+            if not verts:
+                verts = (0, 0, 0)
+            if not stverts:
+                stverts = (0, 0, 0)
+
+            self.facesfront = facesfront
+            self.verts = verts
+            self.stverts = stverts
+        def read(self, mdl):
+            self.facesfront = mdl.read_int()
+            self.verts = mdl.read_ushort(3)
+            self.stverts = mdl.read_ushort(3)
             return self
         def write(self, mdl):
             mdl.write_int(self.facesfront)
@@ -168,7 +187,7 @@ class MDL:
                 self.read_bounds(mdl)
                 self.times = mdl.read_float(num)
                 self.frames = []
-                for i in range(num):
+                for _ in range(num):
                     self.frames.append(MDL.Frame().read(mdl, numverts, 1))
                 return self
             self.read_bounds(mdl)
@@ -189,7 +208,7 @@ class MDL:
             self.write_name(mdl)
             self.write_verts(mdl)
         def read_name(self, mdl):
-            if mdl.version == 6:
+            if mdl.version >= 6:
                 name = mdl.read_string(16)
             else:
                 name = ""
@@ -197,7 +216,7 @@ class MDL:
                 name = name[:name.index("\0")]
             self.name = name
         def write_name(self, mdl):
-            if mdl.version == 6:
+            if mdl.version >= 6:
                 mdl.write_string(self.name, 16)
         def read_bounds(self, mdl):
             self.mins = mdl.read_byte(4)[:3]    #discard normal index
@@ -256,6 +275,14 @@ class MDL:
         size = 4 * count
         data = self.file.read(size)
         data = unpack("<%di" % count, data)
+        if count == 1:
+            return data[0]
+        return data
+    
+    def read_ushort(self, count=1):
+        size = 2 * count
+        data = self.file.read(size)
+        data = unpack("<%dH" % count, data)
         if count == 1:
             return data[0]
         return data
@@ -326,7 +353,7 @@ class MDL:
         self.name = self.name.split('.')[0]
         self.ident = self.read_string(4)
         self.version = self.read_int()
-        if self.ident not in ["IDPO", "MD16"] or self.version not in [3, 6]:
+        if self.ident not in ["IDPO", "MD16", "RAPO"] or self.version not in [3, 6, 50]:
             return None
         self.scale = self.read_float(3)
         self.scale_origin = self.read_float(3)
@@ -339,21 +366,32 @@ class MDL:
         if self.version == 6:
             self.flags = self.read_int()
             self.size = self.read_float()
+            self.num_st_verts = numverts
+        if self.version == 50:
+            self.flags = self.read_int()
+            self.size = self.read_float()
+            self.num_st_verts = self.read_int()
+
         # read in the skin data
         self.skins = []
-        for i in range(numskins):
+        for _ in range(numskins):
             self.skins.append(MDL.Skin().read(self))
+
         #read in the st verts (uv map)
         self.stverts = []
-        for i in range(numverts):
+        for _ in range(self.num_st_verts):
             self.stverts.append(MDL.STVert().read(self))
         #read in the tris
         self.tris = []
-        for i in range(numtris):
-            self.tris.append(MDL.Tri().read(self))
+        if(self.version < 50):
+            for _ in range(numtris):
+                self.tris.append(MDL.Tri().read(self))
+        else:
+            for _ in range(numtris):
+                self.tris.append(MDL.NTri().read(self))
         #read in the frames
         self.frames = []
-        for i in range(numframes):
+        for _ in range(numframes):
             self.frames.append(MDL.Frame().read(self, numverts))
         return self
 
@@ -371,7 +409,7 @@ class MDL:
         self.write_int(len(self.tris))
         self.write_int(len(self.frames))
         self.write_int(self.synctype)
-        if self.version == 6:
+        if self.version >= 6:
             self.write_int(self.flags)
             self.write_float(self.size)
         # write out the skin data

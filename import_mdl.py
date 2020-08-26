@@ -58,16 +58,27 @@ def make_faces(mdl):
         # list of vertices in a tri
         tv = list(tri.verts)
         sts = [] # UV coords
-        for v in tri.verts:
-            # UV vertex
-            stv = mdl.stverts[v]
-            s = stv.s
-            t = stv.t
-            if stv.onseam and not tri.facesfront:
-                s += mdl.skinwidth / 2
-            # quake textures are top to bottom, but blender images
-            # are bottom to top
-            sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+        if mdl.version < 50:
+            for v in tri.verts:
+                # UV vertex
+                stv = mdl.stverts[v]
+                s = stv.s
+                t = stv.t
+                if stv.onseam and not tri.facesfront:
+                    s += mdl.skinwidth / 2
+                # quake textures are top to bottom, but blender images
+                # are bottom to top
+                sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+        else:
+            for v in tri.stverts:
+                # UV vertex from a mdl v50
+                stv = mdl.stverts[v]
+                s, t = (stv.s, stv.t)
+                if stv.onseam and not tri.facesfront:
+                    s += mdl.skinwidth / 2
+                sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+                
+                
         # blender's and quake's vertex order seem to be opposed
         tv.reverse()
         sts.reverse()
@@ -82,7 +93,7 @@ def make_faces(mdl):
 
 def load_skins(mdl, palette):
     '''
-    Loads the texture of the MDL model
+    Loads the texture pixel of the MDL model
     '''
     def load_skin(skin, name):
         skin.name = name
@@ -100,6 +111,7 @@ def load_skins(mdl, palette):
                 p[l + 1] = c[1] / 255.0 # Green
                 p[l + 2] = c[2] / 255.0 # Blue
                 p[l + 3] = 1.0 # Alpha
+
         img.pixels[:] = p[:]
         img.pack()
         img.use_fake_user = True
@@ -113,16 +125,23 @@ def load_skins(mdl, palette):
             load_skin(skin, "%s_%d" % (mdl.name, i))
 
 def setup_skins(mdl, uvs, palette):
+    '''
+    Setup skin slots and materials and sets UV coordinates in the loaded texture
+    '''
     load_skins(mdl, palette)
     img = mdl.images[0]   # use the first skin for now
     mdl.mesh.uv_layers.new(name=mdl.name)
     uvloop = mdl.mesh.uv_layers[0]
     
-    for i, v in enumerate(uvs):
+    # UV Loading=============
+    for i, _ in enumerate(uvs):
         poly = mdl.mesh.polygons[i]
         mdl_uv = uvs[i]
         for j,k in enumerate(poly.loop_indices):
             uvloop.data[k].uv = mdl_uv[j]
+            
+            
+    # Material and texture loading=======
     mat = bpy.data.materials.new(mdl.name)
     mat.use_nodes = True
 
