@@ -2,7 +2,7 @@
 Import and export Quake and Hexen II MDL models in Blender 2.8+
 
 # Download
-[Latest version](https://mega.nz/file/zEcCmaxY#EmaYBQlk9v9L-Dkc3rt8UVm79DD3mdPyoUlHg49iha4)
+[Latest version](https://mega.nz/file/LJcjHYqS#pR2IcED79192kFGCIHkxFHSZ3fZLQX-lR9WJ2aZRmKQ)
 
 # About
 ![Importer in action](screenshot.png)
@@ -24,6 +24,7 @@ Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation
 - Support for Hexen II palette on the Import/Export file menu
 - Better support for skins
 - Emissive material added automatically
+- Support for Hexen II Portals of Praevus model format
 
 ## TO DO
 - Add support for custom palettes
