@@ -23,7 +23,7 @@ bl_info = {
     "name": "Quake and Hexen II MDL format",
     "author": "Bill Currie, Victor Feitosa",
     "blender": (2, 80, 0),
-    "version": (0, 8, 0),
+    "version": (0, 9, 0),
     "api": 35622,
     "location": "File > Import-Export",
     "description": "Import-Export Quake and HexenII MDL files (version 6 mdl files)",
