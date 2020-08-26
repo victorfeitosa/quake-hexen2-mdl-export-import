@@ -58,16 +58,27 @@ def make_faces(mdl):
         # list of vertices in a tri
         tv = list(tri.verts)
         sts = [] # UV coords
-        for v in tri.verts:
-            # UV vertex
-            stv = mdl.stverts[v]
-            s = stv.s
-            t = stv.t
-            if stv.onseam and not tri.facesfront:
-                s += mdl.skinwidth / 2
-            # quake textures are top to bottom, but blender images
-            # are bottom to top
-            sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+        if mdl.version < 50:
+            for v in tri.verts:
+                # UV vertex
+                stv = mdl.stverts[v]
+                s = stv.s
+                t = stv.t
+                if stv.onseam and not tri.facesfront:
+                    s += mdl.skinwidth / 2
+                # quake textures are top to bottom, but blender images
+                # are bottom to top
+                sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+        else:
+            for v in tri.stverts:
+                # UV vertex from a mdl v50
+                stv = mdl.stverts[v]
+                s, t = (stv.s, stv.t)
+                if stv.onseam and not tri.facesfront:
+                    s += mdl.skinwidth / 2
+                sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+                
+                
         # blender's and quake's vertex order seem to be opposed
         tv.reverse()
         sts.reverse()
