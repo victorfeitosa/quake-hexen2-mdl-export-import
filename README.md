@@ -27,6 +27,7 @@ Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation
 - Support for Hexen II Portals of Praevus model format
 
 ## TO DO
+- Add support for Hexen II flags
 - Add support for custom palettes
 - Add support for boilerplate QuakeC
 - Major refactor code for speed and organization
