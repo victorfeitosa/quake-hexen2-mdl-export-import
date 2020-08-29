@@ -19,6 +19,14 @@
 
 # <pep8 compliant>
 
+from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
+from bpy.props import FloatVectorProperty, PointerProperty
+from bpy.props import BoolProperty, FloatProperty, StringProperty, EnumProperty
+import bpy
+
+from mdl import MDLEffects
+
+
 bl_info = {
     "name": "Quake and Hexen II MDL format",
     "author": "Bill Currie, Victor Feitosa",
@@ -43,31 +51,64 @@ if "bpy" in locals():
         imp.reload(export_mdl)
 
 
-import bpy
-from bpy.props import BoolProperty, FloatProperty, StringProperty, EnumProperty
-from bpy.props import FloatVectorProperty, PointerProperty
-from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
-
-SYNCTYPE=(
+SYNCTYPE = (
     ('ST_SYNC', "Syncronized", "Automatic animations are all together"),
     ('ST_RAND', "Random", "Automatic animations have random offsets"),
 )
 
-EFFECTS=(
-    ('EF_NONE', "None", "No effects"),
-    ('EF_ROCKET', "Rocket", "Leave a rocket trail"),
-    ('EF_GRENADE', "Grenade", "Leave a grenade trail"),
-    ('EF_GIB', "Gib", "Leave a trail of blood"),
-    ('EF_TRACER', "Tracer", "Green split trail"),
-    ('EF_ZOMGIB', "Zombie Gib", "Leave a smaller blood trail"),
-    ('EF_TRACER2', "Tracer 2", "Orange split trail + rotate"),
-    ('EF_TRACER3', "Tracer 3", "Purple split trail"),
-)
+EFFECTS_TYPE = ("quake", "hexen")
+EFFECTS = {
+    "quake": (
+        ('EF_NONE', "None", "No effects"),
+        ('EF_ROCKET', "Rocket", "Leave a rocket trail"),
+        ('EF_GRENADE', "Grenade", "Leave a grenade trail"),
+        ('EF_GIB', "Gib", "Leave a trail of blood"),
+        ('EF_ROTATE', "Rotate", "Rotate bonus item"),
+        ('EF_TRACER', "Tracer", "Green split trail"),
+        ('EF_ZOMGIB', "Zombie Gib", "Leave a smaller blood trail"),
+        ('EF_TRACER2', "Tracer 2", "Orange split trail + rotate"),
+        ('EF_TRACER3', "Tracer 3", "Purple split trail"),
+    ),
+    "hexen": (
+        ('EF_NONE', "None", "No effects"),
+        ('EF_ROCKET', "Rocket", "Leave a rocket trail"),
+        ('EF_GRENADE', "Grenade", "Leave a grenade trail"),
+        ('EF_GIB', "Gib", "Leave a trail of blood"),
+        ('EF_ROTATE', "Rotate", "Rotate bonus item"),
+        ('EF_TRACER', "Tracer", "Green split trail"),
+        ('EF_ZOMGIB', "Zombie Gib", "Leave a smaller blood trail"),
+        ('EF_TRACER2', "Tracer 2", "Orange split trail + rotate"),
+        ('EF_TRACER3', "Tracer 3", "Purple split trail"),
+        ('EF_FIREBALL', "Fireball", "Yellow transparent fireball trail"),
+        ('EF_ICE', "Ice", "Blue white ice trail with gravity"),
+        ('EF_MIP_MAP', "Mip map", "Model has mip maps"),
+        ('EF_SPIT', "Spit", "Black transparent trail with negative light"),
+        ('EF_TRANSPARENT', "Transparency", "Transparent sprite"),
+        ('EF_SPELL', "Spell", "Vertical spray of particles"),
+        ('EF_HOLEY', "Solid", "Solid model with black color"),
+        ('EF_SPECIAL_TRANS', "Translucency",
+         "Model with alpha channel"),
+        ('EF_FACE_VIEW', "Billboard", "Model is always facing the camera"),
+        ('EF_VORP_MISSILE', "Vorpal Missile",
+         "Leaves trail at top and bottom of model"),
+        ('EF_SET_STAFF', "Set's Staff", "Trail that bobs left and right"),
+        ('EF_MAGICMISSILE', "Magic missile",
+         "Blue white particles with gravity"),
+        ('EF_BONESHARD', "Bone shard", "Brown particles with gravity"),
+        ('EF_SCARAB', "Scarab",
+         "White transparent particles with little gravity"),
+        ('EF_ACIDBALL', "Acid ball", "Green drippy acid particles"),
+        ('EF_BLOODSHOT', "Blood shot", "Blood rain shot trail"),
+        ('EF_MIP_MAP_FAR', "Far mip map",
+         "Model has mip maps for far"),
+    ),
+}
 
-PALETTES=(
+PALETTES = (
     ('QUAKE', "Quake palette", "Import/Export to Quake"),
     ('HEXEN2', "Hexen II palette", "Import/Export to Hexen II"),
 )
+
 
 class QFMDLSettings(bpy.types.PropertyGroup):
     eyeposition: FloatVectorProperty(
@@ -84,8 +125,8 @@ class QFMDLSettings(bpy.types.PropertyGroup):
         items=EFFECTS,
         name="Effects",
         description="Particle trail effects")
-    #doesn't work :(
-    #script = PointerProperty(
+    # doesn't work :(
+    # script = PointerProperty(
     #    type=bpy.types.Object,
     #    name="Script",
     #    description="Script for animating frames and skins")
@@ -99,6 +140,7 @@ class QFMDLSettings(bpy.types.PropertyGroup):
     md16: BoolProperty(
         name="16-bit",
         description="16 bit vertex coordinates: QuakeForge only")
+
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
     '''Load a Quake MDL File'''
@@ -123,8 +165,9 @@ class ImportMDL6(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         from . import import_mdl
-        keywords = self.as_keywords (ignore=("filter_glob",))
+        keywords = self.as_keywords(ignore=("filter_glob",))
         return import_mdl.import_mdl(self, context, **keywords)
+
 
 class ExportMDL6(bpy.types.Operator, ExportHelper):
     '''Save a Quake MDL File'''
@@ -141,7 +184,7 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         description="Game color palette",
         default="QUAKE"
     )
-    
+
     export_scale: FloatProperty(
         name="Scale factor",
         description="Import model scale factor (usually 5)",
@@ -155,8 +198,9 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
 
     def execute(self, context):
         from . import export_mdl
-        keywords = self.as_keywords (ignore=("check_existing", "filter_glob"))
+        keywords = self.as_keywords(ignore=("check_existing", "filter_glob"))
         return export_mdl.export_mdl(self, context, **keywords)
+
 
 class MDL_PT_Panel(bpy.types.Panel):
     bl_space_type = 'PROPERTIES'
@@ -180,14 +224,19 @@ class MDL_PT_Panel(bpy.types.Panel):
         layout.prop(obj.qfmdl, "xform")
         layout.prop(obj.qfmdl, "md16")
 
+
 def menu_func_import(self, context):
-    self.layout.operator(ImportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
+    self.layout.operator(ImportMDL6.bl_idname,
+                         text="Quake / HexenII MDL (.mdl)")
 
 
 def menu_func_export(self, context):
-    self.layout.operator(ExportMDL6.bl_idname, text="Quake / HexenII MDL (.mdl)")
+    self.layout.operator(ExportMDL6.bl_idname,
+                         text="Quake / HexenII MDL (.mdl)")
+
 
 classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
+
 
 def register():
     for cls in classes:
@@ -205,6 +254,7 @@ def unregister():
 
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+
 
 if __name__ == "__main__":
     register()
