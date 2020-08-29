@@ -21,28 +21,64 @@
 
 from struct import unpack, pack
 
+MDLSyncType = {
+    'ST_SYNC': 0,
+    'ST_RAND': 1,
+}
+
+MDLEffects = {
+    "quake": {
+        'EF_NONE':             0,
+        'EF_ROCKET':           1,
+        'EF_GRENADE':          2,
+        'EF_GIB':              4,
+        'EF_ROTATE':           8,
+        'EF_TRACER':           16,
+        'EF_ZOMGIB':           32,
+        'EF_TRACER2':          64,
+        'EF_TRACER3':          128,
+    },
+    "hexen": {
+        'EF_NONE':             0,
+        'EF_ROCKET':           1,
+        'EF_GRENADE':          2,
+        'EF_GIB':              4,
+        'EF_ROTATE':           8,
+        'EF_TRACER':           16,
+        'EF_ZOMGIB':           32,
+        'EF_TRACER2':          64,
+        'EF_TRACER3':          128,
+        'EF_FIREBALL':         256,
+        'EF_ICE':              512,
+        'EF_MIP_MAP':          1024,
+        'EF_SPIT':             2048,
+        'EF_TRANSPARENT':      4096,
+        'EF_SPELL':            8192,
+        'EF_HOLEY':            16384,
+        'EF_SPECIAL_TRANS':    32768,
+        'EF_FACE_VIEW':        65536,
+        'EF_VORP_MISSILE':     131072,
+        'EF_SET_STAFF':        262144,
+        'EF_MAGICMISSILE':     524288,
+        'EF_BONESHARD':        1048576,
+        'EF_SCARAB':           2097152,
+        'EF_ACIDBALL':         4194304,
+        'EF_BLOODSHOT':        8388608,
+        'EF_MIP_MAP_FAR':      16777216,
+    },
+}
+
+
 class MDL:
-    ST_SYNC = 0
-    ST_RAND = 1
-    SYNCTYPE={'ST_SYNC':ST_SYNC, 'ST_RAND':ST_RAND,
-              ST_SYNC:'ST_SYNC', ST_RAND:'ST_RAND'}
-    EF_ROCKET = 1
-    EF_GRENADE = 2
-    EF_GIB = 4
-    EF_ROTATE = 8
-    EF_TRACER = 16
-    EF_ZOMGIB = 32
-    EF_TRACER2 = 64
-    EF_TRACER3 = 128
-    EFFECTS={'EF_NONE':0, 'EF_ROCKET':EF_ROCKET, 'EF_GRENADE':EF_GRENADE,
-             'EF_GIB':EF_GIB, 'EF_TRACER':EF_TRACER, 'EF_ZOMGIB':EF_ZOMGIB,
-             'EF_TRACER2':EF_TRACER2, 'EF_TRACER3':EF_TRACER3}
+    SYNCTYPE = MDLSyncType.copy()
+    EFFECTS = MDLEffects.copy()
 
     class Skin:
         def __init__(self):
             self.name = ''
+
         def info(self):
-            info={}
+            info = {}
             if self.type:
                 if self.times:
                     info['intervals'] = list(map(lambda t: str(t), self.times))
@@ -52,6 +88,7 @@ class MDL:
             if self.name:
                 info['name'] = self.name
             return info
+
         def read(self, mdl, sub=0):
             self.width, self.height = mdl.skinwidth, mdl.skinheight
             if sub:
@@ -70,6 +107,7 @@ class MDL:
                 return self
             self.read_pixels(mdl)
             return self
+
         def write(self, mdl, sub=0):
             if not sub:
                 mdl.write_int(self.type)
@@ -80,6 +118,7 @@ class MDL:
                         subskin.write(mdl, 1)
                     return
             mdl.write_bytes(self.pixels)
+
         def read_pixels(self, mdl):
             size = self.width * self.height
             self.pixels = mdl.read_bytes(size)
@@ -91,10 +130,12 @@ class MDL:
             self.onseam = onseam
             self.s, self.t = st
             pass
+
         def read(self, mdl):
             self.onseam = mdl.read_int()
             self.s, self.t = mdl.read_int(2)
             return self
+
         def write(self, mdl):
             mdl.write_int(self.onseam)
             mdl.write_int((self.s, self.t))
@@ -105,14 +146,16 @@ class MDL:
                 verts = (0, 0, 0)
             self.facesfront = facesfront
             self.verts = verts
+
         def read(self, mdl):
             self.facesfront = mdl.read_int()
             self.verts = mdl.read_int(3)
             return self
+
         def write(self, mdl):
             mdl.write_int(self.facesfront)
             mdl.write_int(self.verts)
-    
+
     class NTri:
         def __init__(self, verts=None, facesfront=True, stverts=None):
             if not verts:
@@ -123,11 +166,13 @@ class MDL:
             self.facesfront = facesfront
             self.verts = verts
             self.stverts = stverts
+
         def read(self, mdl):
             self.facesfront = mdl.read_int()
             self.verts = mdl.read_ushort(3)
             self.stverts = mdl.read_ushort(3)
             return self
+
         def write(self, mdl):
             mdl.write_int(self.facesfront)
             mdl.write_int(self.verts)
@@ -141,8 +186,9 @@ class MDL:
             self.verts = []
             self.frames = []
             self.times = []
+
         def info(self):
-            info={}
+            info = {}
             if self.type:
                 if self.times:
                     info['intervals'] = list(map(lambda t: str(t), self.times))
@@ -154,11 +200,13 @@ class MDL:
             if self.name:
                 info['name'] = self.name
             return info
+
         def add_vert(self, vert):
             self.verts.append(vert)
             for i, v in enumerate(vert.r):
                 self.mins[i] = min(self.mins[i], v)
                 self.maxs[i] = max(self.maxs[i], v)
+
         def add_frame(self, frame, time):
             self.type = 1
             self.frames.append(frame)
@@ -166,6 +214,7 @@ class MDL:
             for i in range(3):
                 self.mins[i] = min(self.mins[i], frame.mins[i])
                 self.maxs[i] = max(self.maxs[i], frame.maxs[i])
+
         def scale(self, mdl):
             self.mins = tuple(map(lambda x, s, t: int((x - t) / s),
                                   self.mins, mdl.scale, mdl.scale_origin))
@@ -177,6 +226,7 @@ class MDL:
             else:
                 for vert in self.verts:
                     vert.scale(mdl)
+
         def read(self, mdl, numverts, sub=0):
             if sub:
                 self.type = 0
@@ -194,6 +244,7 @@ class MDL:
             self.read_name(mdl)
             self.read_verts(mdl, numverts)
             return self
+
         def write(self, mdl, sub=0):
             if not sub:
                 mdl.write_int(self.type)
@@ -207,6 +258,7 @@ class MDL:
             self.write_bounds(mdl)
             self.write_name(mdl)
             self.write_verts(mdl)
+
         def read_name(self, mdl):
             if mdl.version >= 6:
                 name = mdl.read_string(16)
@@ -215,15 +267,19 @@ class MDL:
             if "\0" in name:
                 name = name[:name.index("\0")]
             self.name = name
+
         def write_name(self, mdl):
             if mdl.version >= 6:
                 mdl.write_string(self.name, 16)
+
         def read_bounds(self, mdl):
-            self.mins = mdl.read_byte(4)[:3]    #discard normal index
-            self.maxs = mdl.read_byte(4)[:3]    #discard normal index
+            self.mins = mdl.read_byte(4)[:3]  # discard normal index
+            self.maxs = mdl.read_byte(4)[:3]  # discard normal index
+
         def write_bounds(self, mdl):
             mdl.write_byte(self.mins + (0,))
             mdl.write_byte(self.maxs + (0,))
+
         def read_verts(self, mdl, num):
             self.verts = []
             for i in range(num):
@@ -234,6 +290,7 @@ class MDL:
                     r = tuple(map(lambda a, b: a + b / 256.0,
                                   self.verts[i].r, v.r))
                     self.verts[i].r = r
+
         def write_verts(self, mdl):
             for vert in self.verts:
                 vert.write(mdl, True)
@@ -248,10 +305,12 @@ class MDL:
             self.r = r
             self.ni = ni
             pass
+
         def read(self, mdl):
             self.r = mdl.read_byte(3)
             self.ni = mdl.read_byte()
             return self
+
         def write(self, mdl, high=True):
             if mdl.ident == 'MD16' and not high:
                 r = tuple(map(lambda a: int(a * 256) & 255, self.r))
@@ -259,6 +318,7 @@ class MDL:
                 r = tuple(map(lambda a: int(a) & 255, self.r))
             mdl.write_byte(r)
             mdl.write_byte(self.ni)
+
         def scale(self, mdl):
             self.r = tuple(map(lambda x, s, t: (x - t) / s,
                                self.r, mdl.scale, mdl.scale_origin))
@@ -278,7 +338,7 @@ class MDL:
         if count == 1:
             return data[0]
         return data
-    
+
     def read_ushort(self, count=1):
         size = 2 * count
         data = self.file.read(size)
@@ -331,22 +391,23 @@ class MDL:
         data = data.encode()
         self.write_bytes(data, size)
 
-    def __init__(self, name = "mdl", md16 = False):
+    def __init__(self, name="mdl", md16=False):
         self.name = name
         self.ident = md16 and "MD16" or "IDPO"
-        self.version = 6        #write only version 6 (nothing usable uses 3)
-        self.scale = (1.0, 1.0, 1.0)        #FIXME
-        self.scale_origin = (0.0, 0.0, 0.0) #FIXME
-        self.boundingradius = 1.0           #FIXME
-        self.eyeposition = (0.0, 0.0, 0.0)  #FIXME
+        self.version = 6  # write only version 6 (nothing usable uses 3)
+        self.scale = (1.0, 1.0, 1.0)  # FIXME
+        self.scale_origin = (0.0, 0.0, 0.0)  # FIXME
+        self.boundingradius = 1.0  # FIXME
+        self.eyeposition = (0.0, 0.0, 0.0)  # FIXME
         self.synctype = MDL.ST_SYNC
-        self.flags = 0          #FIXME config
-        self.size = 0           #FIXME ???
+        self.flags = 0  # FIXME config
+        self.size = 0  # FIXME ???
         self.skins = []
         self.stverts = []
         self.tris = []
         self.frames = []
         pass
+
     def read(self, filepath):
         self.file = open(filepath, "rb")
         self.name = filepath.split('/')[-1]
@@ -377,11 +438,11 @@ class MDL:
         for _ in range(numskins):
             self.skins.append(MDL.Skin().read(self))
 
-        #read in the st verts (uv map)
+        # read in the st verts (uv map)
         self.stverts = []
         for _ in range(self.num_st_verts):
             self.stverts.append(MDL.STVert().read(self))
-        #read in the tris
+        # read in the tris
         self.tris = []
         if(self.version < 50):
             for _ in range(numtris):
@@ -389,7 +450,7 @@ class MDL:
         else:
             for _ in range(numtris):
                 self.tris.append(MDL.NTri().read(self))
-        #read in the frames
+        # read in the frames
         self.frames = []
         for _ in range(numframes):
             self.frames.append(MDL.Frame().read(self, numverts))
@@ -415,12 +476,12 @@ class MDL:
         # write out the skin data
         for skin in self.skins:
             skin.write(self)
-        #write out the st verts (uv map)
+        # write out the st verts (uv map)
         for stvert in self.stverts:
             stvert.write(self)
-        #write out the tris
+        # write out the tris
         for tri in self.tris:
             tri.write(self)
-        #write out the frames
+        # write out the frames
         for frame in self.frames:
             frame.write(self)
