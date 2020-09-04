@@ -399,7 +399,7 @@ class MDL:
         self.scale_origin = (0.0, 0.0, 0.0)  # FIXME
         self.boundingradius = 1.0  # FIXME
         self.eyeposition = (0.0, 0.0, 0.0)  # FIXME
-        self.synctype = MDL.ST_SYNC
+        self.synctype = MDLSyncType["ST_SYNC"]
         self.flags = 0  # FIXME config
         self.size = 0  # FIXME ???
         self.skins = []
