@@ -24,9 +24,6 @@ from bpy.props import FloatVectorProperty, PointerProperty
 from bpy.props import BoolProperty, FloatProperty, StringProperty, EnumProperty
 import bpy
 
-from mdl import MDLEffects
-
-
 bl_info = {
     "name": "Quake and Hexen II MDL format",
     "author": "Bill Currie, Victor Feitosa",
@@ -58,17 +55,6 @@ SYNCTYPE = (
 
 EFFECTS_TYPE = ("quake", "hexen")
 EFFECTS = {
-    "quake": (
-        ('EF_NONE', "None", "No effects"),
-        ('EF_ROCKET', "Rocket", "Leave a rocket trail"),
-        ('EF_GRENADE', "Grenade", "Leave a grenade trail"),
-        ('EF_GIB', "Gib", "Leave a trail of blood"),
-        ('EF_ROTATE', "Rotate", "Rotate bonus item"),
-        ('EF_TRACER', "Tracer", "Green split trail"),
-        ('EF_ZOMGIB', "Zombie Gib", "Leave a smaller blood trail"),
-        ('EF_TRACER2', "Tracer 2", "Orange split trail + rotate"),
-        ('EF_TRACER3', "Tracer 3", "Purple split trail"),
-    ),
     "hexen": (
         ('EF_NONE', "None", "No effects"),
         ('EF_ROCKET', "Rocket", "Leave a rocket trail"),
@@ -79,28 +65,7 @@ EFFECTS = {
         ('EF_ZOMGIB', "Zombie Gib", "Leave a smaller blood trail"),
         ('EF_TRACER2', "Tracer 2", "Orange split trail + rotate"),
         ('EF_TRACER3', "Tracer 3", "Purple split trail"),
-        ('EF_FIREBALL', "Fireball", "Yellow transparent fireball trail"),
-        ('EF_ICE', "Ice", "Blue white ice trail with gravity"),
-        ('EF_MIP_MAP', "Mip map", "Model has mip maps"),
-        ('EF_SPIT', "Spit", "Black transparent trail with negative light"),
-        ('EF_TRANSPARENT', "Transparency", "Transparent sprite"),
-        ('EF_SPELL', "Spell", "Vertical spray of particles"),
-        ('EF_HOLEY', "Solid", "Solid model with black color"),
-        ('EF_SPECIAL_TRANS', "Translucency",
-         "Model with alpha channel"),
-        ('EF_FACE_VIEW', "Billboard", "Model is always facing the camera"),
-        ('EF_VORP_MISSILE', "Vorpal Missile",
-         "Leaves trail at top and bottom of model"),
-        ('EF_SET_STAFF', "Set's Staff", "Trail that bobs left and right"),
-        ('EF_MAGICMISSILE', "Magic missile",
-         "Blue white particles with gravity"),
-        ('EF_BONESHARD', "Bone shard", "Brown particles with gravity"),
-        ('EF_SCARAB', "Scarab",
-         "White transparent particles with little gravity"),
-        ('EF_ACIDBALL', "Acid ball", "Green drippy acid particles"),
-        ('EF_BLOODSHOT', "Blood shot", "Blood rain shot trail"),
-        ('EF_MIP_MAP_FAR', "Far mip map",
-         "Model has mip maps for far"),
+        
     ),
 }
 
@@ -121,15 +86,6 @@ class QFMDLSettings(bpy.types.PropertyGroup):
     rotate: BoolProperty(
         name="Rotate",
         description="Rotate automatically (for pickup items)")
-    effects: EnumProperty(
-        items=EFFECTS,
-        name="Effects",
-        description="Particle trail effects")
-    # doesn't work :(
-    # script = PointerProperty(
-    #    type=bpy.types.Object,
-    #    name="Script",
-    #    description="Script for animating frames and skins")
     script: StringProperty(
         name="Script",
         description="Script for animating frames and skins")
@@ -140,7 +96,34 @@ class QFMDLSettings(bpy.types.PropertyGroup):
     md16: BoolProperty(
         name="16-bit",
         description="16 bit vertex coordinates: QuakeForge only")
-
+    
+    # Quake effects
+    fx_rocket: BoolProperty(name="Rocket", description="Leave a rocket trail")
+    fx_grenade: BoolProperty(name="Grenade", description="Leave a grenade trail")
+    fx_gib: BoolProperty(name="Gib", description="Leave a trail of blood")
+    fx_tracer: BoolProperty(name="Tracer", description="Green split trail")
+    fx_zombie_gib: BoolProperty(name="Zombie Gib", description="Leave a smaller blood trail")
+    fx_tracer2: BoolProperty(name="Tracer 2", description="Orange split trail + rotate")
+    fx_tracer3: BoolProperty(name="Tracer 3", description="Purple split trail")
+    
+    # Hexen II effects
+    fx_fireball: BoolProperty(name="Fireball", description="Yellow transparent fireball trail")
+    fx_ice: BoolProperty(name="Ice", description="Blue white ice trail with gravity")
+    fx_mipmap: BoolProperty(name="Mip map", description="Model has mip maps")
+    fx_spit: BoolProperty(name="Spit", description="Black transparent trail with negative light")
+    fx_transp: BoolProperty(name="Transparency", description="Transparent sprite")
+    fx_spell: BoolProperty(name="Spell", description="Vertical spray of particles")
+    fx_solid: BoolProperty(name="Solid", description="Solid model with black color")
+    fx_trans: BoolProperty(name="Translucency", description="Model with alpha channel")
+    fx_billboard: BoolProperty(name="Billboard", description="Model is always facing the camera")
+    fx_vorpal: BoolProperty(name="Vorpal Missile", description="Leaves trail at top and bottom of model")
+    fx_setstaff: BoolProperty(name="Set's Staff", description="Trail that bobs left and right")
+    fx_magicmis: BoolProperty(name="Magic missile", description="Blue white particles with gravity")
+    fx_boneshard: BoolProperty(name="Bone shard", description="Brown particles with gravity")
+    fx_scarab: BoolProperty(name="Scarab", description="White transparent particles with little gravity")
+    fx_acidball: BoolProperty(name="Acid ball", description="Green drippy acid particles")
+    fx_bloodshot: BoolProperty(name="Blood shot", description="Blood rain shot trail")
+    fx_farmipmap: BoolProperty(name="Far mipmap", description="Model has mip maps for far")
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
     '''Load a Quake MDL File'''
@@ -207,10 +190,11 @@ class MDL_PT_Panel(bpy.types.Panel):
     bl_region_type = 'WINDOW'
     bl_context = 'object'
     bl_label = 'QF MDL'
-
+    
     @classmethod
     def poll(cls, context):
         obj = context.active_object
+        
         return obj and obj.type == 'MESH'
 
     def draw(self, context):
@@ -223,6 +207,36 @@ class MDL_PT_Panel(bpy.types.Panel):
         layout.prop(obj.qfmdl, "script")
         layout.prop(obj.qfmdl, "xform")
         layout.prop(obj.qfmdl, "md16")
+        
+        layout.label(text="Quake effects")
+        grid = layout.grid_flow(columns=2)
+        grid.prop(obj.qfmdl, "fx_rocket")
+        grid.prop(obj.qfmdl, "fx_grenade")
+        grid.prop(obj.qfmdl, "fx_gib")
+        grid.prop(obj.qfmdl, "fx_tracer")
+        grid.prop(obj.qfmdl, "fx_zombie_gib")
+        grid.prop(obj.qfmdl, "fx_tracer2")
+        grid.prop(obj.qfmdl, "fx_tracer3")
+        
+        layout.label(text="Hexen II effects")
+        grid = layout.grid_flow(columns=2)
+        grid.prop(obj.qfmdl, "fx_fireball")
+        grid.prop(obj.qfmdl, "fx_ice")
+        grid.prop(obj.qfmdl, "fx_mipmap")
+        grid.prop(obj.qfmdl, "fx_spit")
+        grid.prop(obj.qfmdl, "fx_transp")
+        grid.prop(obj.qfmdl, "fx_spell")
+        grid.prop(obj.qfmdl, "fx_solid")
+        grid.prop(obj.qfmdl, "fx_trans")
+        grid.prop(obj.qfmdl, "fx_billboard")
+        grid.prop(obj.qfmdl, "fx_vorpal")
+        grid.prop(obj.qfmdl, "fx_setstaff")
+        grid.prop(obj.qfmdl, "fx_magicmis")
+        grid.prop(obj.qfmdl, "fx_boneshard")
+        grid.prop(obj.qfmdl, "fx_scarab")
+        grid.prop(obj.qfmdl, "fx_acidball")
+        grid.prop(obj.qfmdl, "fx_bloodshot")
+        grid.prop(obj.qfmdl, "fx_farmipmap")
 
 
 def menu_func_import(self, context):
