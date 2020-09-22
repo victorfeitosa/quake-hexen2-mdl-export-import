@@ -233,8 +233,7 @@ def calc_average_area(mdl):
 def get_properties(operator, mdl, obj, export_scale):
     mdl.eyeposition = tuple(map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
     mdl.synctype = MDL.SYNCTYPE[obj.qfmdl.synctype]
-    mdl.flags = ((obj.qfmdl.rotate and MDL.EF_ROTATE or 0)
-                 | MDL.EFFECTS[obj.qfmdl.effects])
+    mdl.flags = MDL.EFFECTS[obj.qfmdl.effects]
     if obj.qfmdl.md16:
         mdl.ident = "MD16"
     return True
