@@ -21,7 +21,8 @@
 
 from struct import unpack, pack
 
-MDLSyncType = {
+MDLSyncType = ['ST_SYNC', 'ST_RAND']
+MDLSyncTypeEnum = {
     'ST_SYNC': 0,
     'ST_RAND': 1,
 }
@@ -389,7 +390,7 @@ class MDL:
         self.scale_origin = (0.0, 0.0, 0.0)  # FIXME
         self.boundingradius = 1.0  # FIXME
         self.eyeposition = (0.0, 0.0, 0.0)  # FIXME
-        self.synctype = MDLSyncType["ST_SYNC"]
+        self.synctype = MDLSyncTypeEnum["ST_SYNC"]
         self.flags = 0  # FIXME config
         self.size = 0  # FIXME ???
         self.skins = []

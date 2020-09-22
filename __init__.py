@@ -21,7 +21,7 @@
 
 from bpy_extras.io_utils import ExportHelper, ImportHelper, path_reference_mode, axis_conversion
 from bpy.props import FloatVectorProperty, PointerProperty
-from bpy.props import BoolProperty, FloatProperty, StringProperty, EnumProperty
+from bpy.props import BoolProperty, FloatProperty, StringProperty, EnumProperty, CollectionProperty
 import bpy
 
 bl_info = {
@@ -74,6 +74,34 @@ PALETTES = (
     ('HEXEN2', "Hexen II palette", "Import/Export to Hexen II"),
 )
 
+class QFMDLEffects(bpy.types.PropertyGroup):
+    # Quake effects
+    rocket = BoolProperty(name="Rocket", description="Leave a rocket trail")
+    grenade = BoolProperty(name="Grenade", description="Leave a grenade trail")
+    gib = BoolProperty(name="Gib", description="Leave a trail of blood")
+    tracer = BoolProperty(name="Tracer", description="Green split trail")
+    zombie_gib = BoolProperty(name="Zombie Gib", description="Leave a smaller blood trail")
+    tracer2 = BoolProperty(name="Tracer 2", description="Orange split trail + rotate")
+    tracer3 = BoolProperty(name="Tracer 3", description="Purple split trail")
+    
+    # Hexen II effects
+    fireball = BoolProperty(name="Fireball", description="Yellow transparent fireball trail")
+    ice = BoolProperty(name="Ice", description="Blue white ice trail with gravity")
+    mipmap = BoolProperty(name="Mip map", description="Model has mip maps")
+    spit = BoolProperty(name="Spit", description="Black transparent trail with negative light")
+    transp = BoolProperty(name="Transparency", description="Transparent sprite")
+    spell = BoolProperty(name="Spell", description="Vertical spray of particles")
+    solid = BoolProperty(name="Solid", description="Solid model with black color")
+    trans = BoolProperty(name="Translucency", description="Model with alpha channel")
+    billboard = BoolProperty(name="Billboard", description="Model is always facing the camera")
+    vorpal = BoolProperty(name="Vorpal Missile", description="Leaves trail at top and bottom of model")
+    setstaff = BoolProperty(name="Set's Staff", description="Trail that bobs left and right")
+    magicmis = BoolProperty(name="Magic missile", description="Blue white particles with gravity")
+    boneshard = BoolProperty(name="Bone shard", description="Brown particles with gravity")
+    scarab = BoolProperty(name="Scarab", description="White transparent particles with little gravity")
+    acidball = BoolProperty(name="Acid ball", description="Green drippy acid particles")
+    bloodshot = BoolProperty(name="Blood shot", description="Blood rain shot trail")
+    farmipmap = BoolProperty(name="Far mipmap", description="Model has mip maps for far")
 
 class QFMDLSettings(bpy.types.PropertyGroup):
     eyeposition: FloatVectorProperty(
@@ -96,34 +124,8 @@ class QFMDLSettings(bpy.types.PropertyGroup):
     md16: BoolProperty(
         name="16-bit",
         description="16 bit vertex coordinates: QuakeForge only")
+    effects: CollectionProperty(type=QFMDLEffects, name="Effects", description="Quake/Hexen MDL Effects")
     
-    # Quake effects
-    fx_rocket: BoolProperty(name="Rocket", description="Leave a rocket trail")
-    fx_grenade: BoolProperty(name="Grenade", description="Leave a grenade trail")
-    fx_gib: BoolProperty(name="Gib", description="Leave a trail of blood")
-    fx_tracer: BoolProperty(name="Tracer", description="Green split trail")
-    fx_zombie_gib: BoolProperty(name="Zombie Gib", description="Leave a smaller blood trail")
-    fx_tracer2: BoolProperty(name="Tracer 2", description="Orange split trail + rotate")
-    fx_tracer3: BoolProperty(name="Tracer 3", description="Purple split trail")
-    
-    # Hexen II effects
-    fx_fireball: BoolProperty(name="Fireball", description="Yellow transparent fireball trail")
-    fx_ice: BoolProperty(name="Ice", description="Blue white ice trail with gravity")
-    fx_mipmap: BoolProperty(name="Mip map", description="Model has mip maps")
-    fx_spit: BoolProperty(name="Spit", description="Black transparent trail with negative light")
-    fx_transp: BoolProperty(name="Transparency", description="Transparent sprite")
-    fx_spell: BoolProperty(name="Spell", description="Vertical spray of particles")
-    fx_solid: BoolProperty(name="Solid", description="Solid model with black color")
-    fx_trans: BoolProperty(name="Translucency", description="Model with alpha channel")
-    fx_billboard: BoolProperty(name="Billboard", description="Model is always facing the camera")
-    fx_vorpal: BoolProperty(name="Vorpal Missile", description="Leaves trail at top and bottom of model")
-    fx_setstaff: BoolProperty(name="Set's Staff", description="Trail that bobs left and right")
-    fx_magicmis: BoolProperty(name="Magic missile", description="Blue white particles with gravity")
-    fx_boneshard: BoolProperty(name="Bone shard", description="Brown particles with gravity")
-    fx_scarab: BoolProperty(name="Scarab", description="White transparent particles with little gravity")
-    fx_acidball: BoolProperty(name="Acid ball", description="Green drippy acid particles")
-    fx_bloodshot: BoolProperty(name="Blood shot", description="Blood rain shot trail")
-    fx_farmipmap: BoolProperty(name="Far mipmap", description="Model has mip maps for far")
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
     '''Load a Quake MDL File'''
@@ -249,7 +251,7 @@ def menu_func_export(self, context):
                          text="Quake / HexenII MDL (.mdl)")
 
 
-classes = (QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
+classes = (QFMDLEffects, QFMDLSettings, ImportMDL6, ExportMDL6, MDL_PT_Panel)
 
 
 def register():
