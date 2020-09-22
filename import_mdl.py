@@ -365,7 +365,7 @@ def set_properties(mdl, scalefactor=1):
         mdl.obj.qfmdl.synctype = MDL.SYNCTYPE[mdl.synctype]
     except IndexError:
         mdl.obj.qfmdl.synctype = 'ST_SYNC'
-    mdl.obj.qfmdl.rotate = (mdl.flags & MDL.EFFECTS['quake']['EF_ROTATE ']) and True or False
+    mdl.obj.qfmdl.rotate = (mdl.flags & MDL.EFFECTS['EF_ROTATE ']) and True or False
     mdl.obj.qfmdl.effects = mdl.flags
     mdl.obj.qfmdl.script = mdl.text.name #FIXME really want the text object
     mdl.obj.qfmdl.md16 = (mdl.ident == "MD16")
