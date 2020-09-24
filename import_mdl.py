@@ -359,9 +359,12 @@ def write_text(mdl):
     txt.from_string(string)
     mdl.text = txt
     
-def parse_effects(effects):
-    print(effects)
-    return effects
+def parse_flags(fx_group, flags):
+    # TODO: implement this
+    effects = fx_group.__annotations__.items()
+    for i, (key, _) in enumerate(effects):
+        print(key, (flags & MDL.EFFECTS[i][1]))
+        setattr(fx_group, key, (flags & MDL.EFFECTS[i][1]))
 
 def set_properties(mdl, scalefactor=1):
     mdl.obj.qfmdl.eyeposition = tuple(map(lambda v: v*scalefactor, mdl.eyeposition))
@@ -369,7 +372,8 @@ def set_properties(mdl, scalefactor=1):
         mdl.obj.qfmdl.synctype = MDL.SYNCTYPE[mdl.synctype]
     except IndexError:
         mdl.obj.qfmdl.synctype = 'ST_SYNC'
-    mdl.obj.qfmdl.effects = parse_effects(mdl.flags)
+
+    parse_flags(mdl.obj.qfmdl.effects, mdl.flags)
     mdl.obj.qfmdl.script = mdl.text.name #FIXME really want the text object
     mdl.obj.qfmdl.md16 = (mdl.ident == "MD16")
 
