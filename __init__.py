@@ -53,22 +53,6 @@ SYNCTYPE = (
     ('ST_RAND', "Random", "Automatic animations have random offsets"),
 )
 
-EFFECTS_TYPE = ("quake", "hexen")
-EFFECTS = {
-    "hexen": (
-        ('EF_NONE', "None", "No effects"),
-        ('EF_ROCKET', "Rocket", "Leave a rocket trail"),
-        ('EF_GRENADE', "Grenade", "Leave a grenade trail"),
-        ('EF_GIB', "Gib", "Leave a trail of blood"),
-        ('EF_ROTATE', "Rotate", "Rotate bonus item"),
-        ('EF_TRACER', "Tracer", "Green split trail"),
-        ('EF_ZOMGIB', "Zombie Gib", "Leave a smaller blood trail"),
-        ('EF_TRACER2', "Tracer 2", "Orange split trail + rotate"),
-        ('EF_TRACER3', "Tracer 3", "Purple split trail"),
-        
-    ),
-}
-
 PALETTES = (
     ('QUAKE', "Quake palette", "Import/Export to Quake"),
     ('HEXEN2', "Hexen II palette", "Import/Export to Hexen II"),
@@ -79,9 +63,10 @@ class QFMDLEffects(bpy.types.PropertyGroup):
     rocket: BoolProperty(name="Rocket", description="Leave a rocket trail")
     grenade: BoolProperty(name="Grenade", description="Leave a grenade trail")
     gib: BoolProperty(name="Gib", description="Leave a trail of blood")
+    rotate: BoolProperty(name="Rotate", description="Rotates model like an pickup")
     tracer: BoolProperty(name="Tracer", description="Green split trail")
     zombie_gib: BoolProperty(name="Zombie Gib", description="Leave a smaller blood trail")
-    tracer2: BoolProperty(name="Tracer 2", description="Orange split trail + rotate")
+    tracer2: BoolProperty(name="Tracer 2", description="Orange split trail")
     tracer3: BoolProperty(name="Tracer 3", description="Purple split trail")
     
     # Hexen II effects
@@ -111,9 +96,6 @@ class QFMDLSettings(bpy.types.PropertyGroup):
         items=SYNCTYPE,
         name="Sync Type",
         description="Add random time offset for automatic animations")
-    rotate: BoolProperty(
-        name="Rotate",
-        description="Rotate automatically (for pickup items)")
     script: StringProperty(
         name="Script",
         description="Script for animating frames and skins")
@@ -204,8 +186,6 @@ class MDL_PT_Panel(bpy.types.Panel):
         obj = context.active_object
         layout.prop(obj.qfmdl, "eyeposition")
         layout.prop(obj.qfmdl, "synctype")
-        layout.prop(obj.qfmdl, "rotate")
-        layout.prop(obj.qfmdl, "effects")
         layout.prop(obj.qfmdl, "script")
         layout.prop(obj.qfmdl, "xform")
         layout.prop(obj.qfmdl, "md16")
@@ -218,6 +198,7 @@ class MDL_PT_Panel(bpy.types.Panel):
         grid.prop(effects, "rocket")
         grid.prop(effects, "grenade")
         grid.prop(effects, "gib")
+        grid.prop(effects, "rotate")
         grid.prop(effects, "tracer")
         grid.prop(effects, "zombie_gib")
         grid.prop(effects, "tracer2")

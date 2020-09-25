@@ -29,7 +29,6 @@ MDLSyncTypeEnum = {
 
 MDLEffects = [
     # Quake and general MDL Effects
-    ('EF_NONE',             0,),
     ('EF_ROCKET',           1,),
     ('EF_GRENADE',          2,),
     ('EF_GIB',              4,),
