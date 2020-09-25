@@ -363,7 +363,6 @@ def parse_flags(fx_group, flags):
     # TODO: implement this
     effects = fx_group.__annotations__.items()
     for i, (key, _) in enumerate(effects):
-        print(key, (flags & MDL.EFFECTS[i][1]))
         setattr(fx_group, key, (flags & MDL.EFFECTS[i][1]))
 
 def set_properties(mdl, scalefactor=1):
