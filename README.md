@@ -2,7 +2,7 @@
 Import and Export ID's Quake and Ravensoft's Hexen II MDL models to and from Blender 2.8+
 
 # Download
-[Latest version](https://mega.nz/file/2RkVXSaD#9QXkGydn076q26Oa5OnXAoHWD1MqxtzHdDFMgldFLh8)
+[Latest version](https://mega.nz/file/jR8nUQrD#KYlqapdsryhplf_22y89cOHOAHWsctZ-TOkZCHNUE24)
 
 # About
 ![Importer in action](screenshot.png)
@@ -25,9 +25,9 @@ Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation
 - Better support for skins
 - Emissive material added automatically
 - Support for Hexen II Portals of Praevus model format
+- Added support for Hexen II flags
 
 ## TO DO
-- Add support for Hexen II flags
 - Add support for custom palettes
 - Add support for boilerplate QuakeC
 - Major refactor code for speed and organization

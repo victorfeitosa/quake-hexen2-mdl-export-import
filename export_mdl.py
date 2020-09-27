@@ -26,7 +26,7 @@ from mathutils import Vector, Matrix
 from .utils import getPaletteFromName
 from .qfplist import pldata, PListError
 from .qnorm import map_normal
-from .mdl import MDL
+from .mdl import MDL, MDLSyncTypeEnum
 
 
 def check_faces(mesh):
@@ -230,11 +230,19 @@ def calc_average_area(mdl):
     return totalarea / len(mdl.tris)
 
 
+def parse_effects(fx_group):
+    effects = fx_group.__annotations__.keys()
+    flags = 0
+    for i, v in enumerate(effects):
+        fx = getattr(fx_group, v)
+        if fx:
+            flags += MDL.EFFECTS[i][1]
+    return flags
+
 def get_properties(operator, mdl, obj, export_scale):
     mdl.eyeposition = tuple(map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
-    mdl.synctype = MDL.SYNCTYPE[obj.qfmdl.synctype]
-    mdl.flags = ((obj.qfmdl.rotate and MDL.EF_ROTATE or 0)
-                 | MDL.EFFECTS[obj.qfmdl.effects])
+    mdl.synctype = MDLSyncTypeEnum[obj.qfmdl.synctype]
+    mdl.flags = parse_effects(obj.qfmdl.effects)
     if obj.qfmdl.md16:
         mdl.ident = "MD16"
     return True

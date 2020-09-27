@@ -358,26 +358,11 @@ def write_text(mdl):
     txt = bpy.data.texts.new(mdl.name)
     txt.from_string(string)
     mdl.text = txt
-
-def parse_flags(flags):
-    #NOTE these are in QuakeForge priority order; a little different to id.
-    # id has rocket and grenate between tracer2 and tracer3
-    if flags & MDL.EF_ROCKET:
-        return 'EF_ROCKET'
-    elif flags & MDL.EF_GRENADE:
-        return 'EF_GRENADE'
-    elif flags & MDL.EF_GIB:
-        return 'EF_GIB'
-    elif flags & MDL.EF_ZOMGIB:
-        return 'EF_ZOMGIB'
-    elif flags & MDL.EF_TRACER:
-        return 'EF_TRACER'
-    elif flags & MDL.EF_TRACER2:
-        return 'EF_TRACER2'
-    elif flags & MDL.EF_TRACER3:
-        return 'EF_TRACER3'
-    else:
-        return 'EF_NONE'
+    
+def parse_flags(fx_group, flags):
+    effects = fx_group.__annotations__.items()
+    for i, (key, _) in enumerate(effects):
+        setattr(fx_group, key, (flags & MDL.EFFECTS[i][1] > 0))
 
 def set_properties(mdl, scalefactor=1):
     mdl.obj.qfmdl.eyeposition = tuple(map(lambda v: v*scalefactor, mdl.eyeposition))
@@ -385,8 +370,8 @@ def set_properties(mdl, scalefactor=1):
         mdl.obj.qfmdl.synctype = MDL.SYNCTYPE[mdl.synctype]
     except IndexError:
         mdl.obj.qfmdl.synctype = 'ST_SYNC'
-    mdl.obj.qfmdl.rotate = (mdl.flags & MDL.EF_ROTATE) and True or False
-    mdl.obj.qfmdl.effects = parse_flags(mdl.flags)
+
+    parse_flags(mdl.obj.qfmdl.effects, mdl.flags)
     mdl.obj.qfmdl.script = mdl.text.name #FIXME really want the text object
     mdl.obj.qfmdl.md16 = (mdl.ident == "MD16")
 
