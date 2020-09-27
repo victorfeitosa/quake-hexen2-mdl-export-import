@@ -25,9 +25,9 @@ Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation
 - Better support for skins
 - Emissive material added automatically
 - Support for Hexen II Portals of Praevus model format
+- Added support for Hexen II flags
 
 ## TO DO
-- Add support for Hexen II flags
 - Add support for custom palettes
 - Add support for boilerplate QuakeC
 - Major refactor code for speed and organization
