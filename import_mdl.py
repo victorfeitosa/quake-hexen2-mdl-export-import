@@ -360,7 +360,6 @@ def write_text(mdl):
     mdl.text = txt
     
 def parse_flags(fx_group, flags):
-    # TODO: implement this
     effects = fx_group.__annotations__.items()
     for i, (key, _) in enumerate(effects):
         setattr(fx_group, key, (flags & MDL.EFFECTS[i][1]))
