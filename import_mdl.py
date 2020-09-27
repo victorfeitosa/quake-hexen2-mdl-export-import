@@ -362,7 +362,7 @@ def write_text(mdl):
 def parse_flags(fx_group, flags):
     effects = fx_group.__annotations__.items()
     for i, (key, _) in enumerate(effects):
-        setattr(fx_group, key, (flags & MDL.EFFECTS[i][1]))
+        setattr(fx_group, key, (flags & MDL.EFFECTS[i][1] > 0))
 
 def set_properties(mdl, scalefactor=1):
     mdl.obj.qfmdl.eyeposition = tuple(map(lambda v: v*scalefactor, mdl.eyeposition))
