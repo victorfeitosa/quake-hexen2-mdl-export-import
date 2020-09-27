@@ -2,7 +2,7 @@
 Import and Export ID's Quake and Ravensoft's Hexen II MDL models to and from Blender 2.8+
 
 # Download
-[Latest version](https://mega.nz/file/2RkVXSaD#9QXkGydn076q26Oa5OnXAoHWD1MqxtzHdDFMgldFLh8)
+[Latest version](https://mega.nz/file/jR8nUQrD#KYlqapdsryhplf_22y89cOHOAHWsctZ-TOkZCHNUE24)
 
 # About
 ![Importer in action](screenshot.png)
