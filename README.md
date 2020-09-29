@@ -28,6 +28,7 @@ Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation
 - Added support for Hexen II flags
 
 ## TO DO
+- Add the option to exclude brightmap colours from the texture conversion process
 - Add support for custom palettes
 - Add support for boilerplate QuakeC
 - Major refactor code for speed and organization
