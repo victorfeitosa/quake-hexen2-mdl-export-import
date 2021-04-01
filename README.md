@@ -19,16 +19,16 @@ Some queues were taken from [Khreator](https://twitter.com/khreathor) adaptation
 [ko-fi page](https://ko-fi.com/victorfeitosa)
 
 # Roadmap
-## New features
+## Latest new features added
 - Import/Export scale adjusts for the model and the `eyeposition` tag
 - Support for Hexen II palette on the Import/Export file menu
 - Better support for skins
 - Emissive material added automatically
 - Support for Hexen II Portals of Praevus model format
-- Added support for Hexen II flags
+- Added import and export support for Hexen II model flags
 
 ## TO DO
-- Add the option to exclude brightmap colours from the texture conversion process
+- Add the option to exclude brightmap colours from the texture conversion process, approximating textures colours to only the non-bright palette colours
 - Add support for custom palettes
 - Add support for boilerplate QuakeC
 - Major refactor code for speed and organization
