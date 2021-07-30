@@ -166,7 +166,13 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         from . import export_mdl
         keywords = self.as_keywords(ignore=("check_existing", "filter_glob"))
-        return export_mdl.export_mdl(self, context, **keywords)
+
+        try:
+            return export_mdl.export_mdl(self, context, **keywords)
+        except IndexError:
+            self.report({"WARNING"}, "Error converting MDL vertices. Do you have any unapplied topology modifiers?")
+            return {'CANCELLED'}
+        return export_result
 
 
 class MDL_PT_Panel(bpy.types.Panel):
