@@ -181,8 +181,11 @@ def convert_stverts(mdl, stverts):
         s = round(s * (mdl.skinwidth - 1) + 0.5)
         t = round((1 - t) * (mdl.skinheight - 1) + 0.5)
         # ensure st is within the skin
+        if(mdl.skinwidth <= 0 or mdl.skinheight <= 0):
+            mdl.skinwidth = mdl.skinheight = 1
         s = ((s % mdl.skinwidth) + mdl.skinwidth) % mdl.skinwidth
         t = ((t % mdl.skinheight) + mdl.skinheight) % mdl.skinheight
+
         stverts[i] = MDL.STVert((s, t))
 
 
@@ -321,7 +324,7 @@ def export_mdl(operator, context, filepath, palette, export_scale):
     obj.update_from_editmode()
     depsgraph = context.evaluated_depsgraph_get()
     ob_eval = obj.evaluated_get(depsgraph)
-    mesh = ob_eval.to_mesh()
+    objname = ob_eval.name_full
     bpy.ops.transform.resize(value=(export_scale, export_scale, export_scale))
 
     palette = getPaletteFromName(palette)
@@ -334,6 +337,8 @@ def export_mdl(operator, context, filepath, palette, export_scale):
     mdl.obj = obj
     if not get_properties(operator, mdl, obj, export_scale):
         return {'CANCELLED'}
+    bpy.context.active_object.name = objname
+    mesh = bpy.context.active_object.to_mesh()
     mdl.tris, mdl.stverts, vertmap = build_tris(mesh)
     if not mdl.skins:
         make_skin(mdl, mesh, palette)
