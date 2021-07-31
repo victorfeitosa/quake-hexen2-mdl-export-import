@@ -174,6 +174,8 @@ def build_tris(mesh):
 
 
 def convert_stverts(mdl, stverts):
+    if(mdl.skinwidth <= 0 or mdl.skinheight <= 0):
+            mdl.skinwidth = mdl.skinheight = 256
     for i, st in enumerate(stverts):
         s, t = st
         # quake textures are top to bottom, but blender images
@@ -181,8 +183,6 @@ def convert_stverts(mdl, stverts):
         s = round(s * (mdl.skinwidth - 1) + 0.5)
         t = round((1 - t) * (mdl.skinheight - 1) + 0.5)
         # ensure st is within the skin
-        if(mdl.skinwidth <= 0 or mdl.skinheight <= 0):
-            mdl.skinwidth = mdl.skinheight = 1
         s = ((s % mdl.skinwidth) + mdl.skinwidth) % mdl.skinwidth
         t = ((t % mdl.skinheight) + mdl.skinheight) % mdl.skinheight
 
