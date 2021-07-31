@@ -125,8 +125,9 @@ def make_skin(mdl, mesh, palette):
                 for node in allTextureNodes:
                     if node.type == "TEX_IMAGE":
                         image = node.image
-                        mdl.skinwidth, mdl.skinheight = image.size
-                        skin = convert_image(image, palette)
+                        if(image.size[0] > 0 and image.size[1] > 0):
+                            mdl.skinwidth, mdl.skinheight = (4, 4)
+                            skin = convert_image(image, palette)
                         mdl.skins.append(skin)
             else:
                 # add empty skin - no texture nodes
@@ -174,8 +175,6 @@ def build_tris(mesh):
 
 
 def convert_stverts(mdl, stverts):
-    if(mdl.skinwidth <= 0 or mdl.skinheight <= 0):
-            mdl.skinwidth = mdl.skinheight = 256
     for i, st in enumerate(stverts):
         s, t = st
         # quake textures are top to bottom, but blender images
@@ -340,7 +339,7 @@ def export_mdl(operator, context, filepath, palette, export_scale):
     bpy.context.active_object.name = objname
     mesh = bpy.context.active_object.to_mesh()
     mdl.tris, mdl.stverts, vertmap = build_tris(mesh)
-    if not mdl.skins:
+    if not mdl.skins or (mdl.skinwidth):
         make_skin(mdl, mesh, palette)
     if not mdl.frames:
         start_frame = context.scene.frame_start
