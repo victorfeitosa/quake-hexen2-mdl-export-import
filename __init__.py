@@ -179,7 +179,7 @@ class MDL_PT_Panel(bpy.types.Panel):
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
     bl_context = 'object'
-    bl_label = 'QF MDL'
+    bl_label = 'Quake MDL'
     
     @classmethod
     def poll(cls, context):
