@@ -26,7 +26,8 @@ from mathutils import Vector, Matrix
 from .utils import getPaletteFromName
 from .qfplist import pldata, PListError
 from .qnorm import map_normal
-from .mdl import MDL, MDLSyncTypeEnum
+from .mdl import MDL
+from .constants import MDLSyncType
 
 
 def check_faces(mesh):
@@ -238,12 +239,12 @@ def parse_effects(fx_group):
     for i, v in enumerate(effects):
         fx = getattr(fx_group, v)
         if fx:
-            flags += MDL.EFFECTS[i][1]
+            flags += MDLEffects[i][1]
     return flags
 
 def get_properties(operator, mdl, obj, export_scale):
     mdl.eyeposition = tuple(map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
-    mdl.synctype = MDLSyncTypeEnum[obj.qfmdl.synctype]
+    mdl.synctype = MDLSyncType[obj.qfmdl.synctype][1]
     mdl.flags = parse_effects(obj.qfmdl.effects)
     if obj.qfmdl.md16:
         mdl.ident = "MD16"

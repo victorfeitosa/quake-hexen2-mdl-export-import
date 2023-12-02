@@ -24,6 +24,7 @@ import importlib
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector,Matrix
 
+from .constants import MDLEffects, MDLSyncType
 from .mdl import MDL
 from .qfplist import pldata
 
@@ -362,12 +363,12 @@ def write_text(mdl):
 def parse_flags(fx_group, flags):
     effects = fx_group.__annotations__.items()
     for i, (key, _) in enumerate(effects):
-        setattr(fx_group, key, (flags & MDL.EFFECTS[i][1] > 0))
+        setattr(fx_group, key, (flags & MDLEffects[i][1] > 0))
 
 def set_properties(mdl, scalefactor=1):
     mdl.obj.qfmdl.eyeposition = tuple(map(lambda v: v*scalefactor, mdl.eyeposition))
     try:
-        mdl.obj.qfmdl.synctype = MDL.SYNCTYPE[mdl.synctype]
+        mdl.obj.qfmdl.synctype = MDLSyncType[mdl.synctype][0]
     except IndexError:
         mdl.obj.qfmdl.synctype = 'ST_SYNC'
 
