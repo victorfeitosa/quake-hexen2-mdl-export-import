@@ -58,35 +58,40 @@ PALETTES = (
     ('HEXEN2', "Hexen II palette", "Import/Export to Hexen II"),
 )
 
+
 class QFMDLEffects(bpy.types.PropertyGroup):
     # Quake effects
-    rocket: BoolProperty(name="Rocket", description="Leave a rocket trail")
-    grenade: BoolProperty(name="Grenade", description="Leave a grenade trail")
-    gib: BoolProperty(name="Gib", description="Leave a trail of blood")
-    rotate: BoolProperty(name="Rotate", description="Rotates model like an pickup")
-    tracer: BoolProperty(name="Tracer", description="Green split trail")
-    zombie_gib: BoolProperty(name="Zombie Gib", description="Leave a smaller blood trail")
-    tracer2: BoolProperty(name="Tracer 2", description="Orange split trail")
-    tracer3: BoolProperty(name="Tracer 3", description="Purple split trail")
-    
+    rocket: BoolProperty(
+        name="EF_ROCKET",
+        description="Leave a rocket trail",
+    )
+    grenade: BoolProperty(name="EF_GRENADE", description="Leave a grenade trail")
+    gib: BoolProperty(name="EF_GIB", description="Leave a trail of blood")
+    rotate: BoolProperty(name="EF_ROTATE", description="Rotates model like an pickup")
+    tracer: BoolProperty(name="EF_TRACER", description="Green split trail")
+    zombie_gib: BoolProperty(name="EF_ZOMGIB", description="Leave a smaller blood trail")
+    tracer2: BoolProperty(name="EF_TRACER2", description="Orange split trail")
+    tracer3: BoolProperty(name="EF_TRACER3", description="Purple split trail")
+
     # Hexen II effects
-    fireball: BoolProperty(name="Fireball", description="Yellow transparent fireball trail")
-    ice: BoolProperty(name="Ice", description="Blue white ice trail with gravity")
-    mipmap: BoolProperty(name="Mip map", description="Model has mip maps")
-    spit: BoolProperty(name="Spit", description="Black transparent trail with negative light")
-    transp: BoolProperty(name="Transparency", description="Transparent sprite")
-    spell: BoolProperty(name="Spell", description="Vertical spray of particles")
-    solid: BoolProperty(name="Solid", description="Solid model with black color")
-    trans: BoolProperty(name="Translucency", description="Model with alpha channel")
-    billboard: BoolProperty(name="Billboard", description="Model is always facing the camera")
-    vorpal: BoolProperty(name="Vorpal Missile", description="Leaves trail at top and bottom of model")
-    setstaff: BoolProperty(name="Set's Staff", description="Trail that bobs left and right")
-    magicmis: BoolProperty(name="Magic missile", description="Blue white particles with gravity")
-    boneshard: BoolProperty(name="Bone shard", description="Brown particles with gravity")
-    scarab: BoolProperty(name="Scarab", description="White transparent particles with little gravity")
-    acidball: BoolProperty(name="Acid ball", description="Green drippy acid particles")
-    bloodshot: BoolProperty(name="Blood shot", description="Blood rain shot trail")
-    farmipmap: BoolProperty(name="Far mipmap", description="Model has mip maps for far")
+    fireball: BoolProperty(name="EF_FIREBALL", description="Yellow transparent fireball trail")
+    ice: BoolProperty(name="EF_ICE", description="Blue white ice trail with gravity")
+    mipmap: BoolProperty(name="EF_MIP_MAP", description="Model has mip maps")
+    spit: BoolProperty(name="EF_SPIT", description="Black transparent trail with negative light")
+    transp: BoolProperty(name="EF_TRANSPARENT", description="Transparent sprite")
+    spell: BoolProperty(name="EF_SPELL", description="Vertical spray of particles")
+    solid: BoolProperty(name="EF_HOLEY", description="Solid model with black color")
+    trans: BoolProperty(name="EF_SPECIAL_TRANS", description="Model with alpha channel")
+    billboard: BoolProperty(name="EF_FACE_VIEW", description="Model is always facing the camera")
+    vorpal: BoolProperty(name="EF_VORP_MISSILE", description="Leaves trail at top and bottom of model")
+    setstaff: BoolProperty(name="EF_SET_STAFF", description="Trail that bobs left and right")
+    magicmis: BoolProperty(name="EF_MAGICMISSILE", description="Blue white particles with gravity")
+    boneshard: BoolProperty(name="EF_BONESHARD", description="Brown particles with gravity")
+    scarab: BoolProperty(name="EF_SCARAB", description="White transparent particles with little gravity")
+    acidball: BoolProperty(name="EF_ACIDBALL", description="Green drippy acid particles")
+    bloodshot: BoolProperty(name="EF_BLOODSHOT", description="Blood rain shot trail")
+    farmipmap: BoolProperty(name="EF_MIP_MAP_FAR", description="Model has mip maps for far distances")
+
 
 class QFMDLSettings(bpy.types.PropertyGroup):
     eyeposition: FloatVectorProperty(
