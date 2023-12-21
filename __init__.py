@@ -245,7 +245,7 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
     @classmethod
     def poll(cls, context):
         return (context.active_object is not None
-                and context.active_object.data is bpy.types.Mesh)
+                and type(context.active_object.data) is bpy.types.Mesh)
 
     def execute(self, context):
         from . import export_mdl

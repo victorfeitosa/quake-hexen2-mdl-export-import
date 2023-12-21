@@ -77,7 +77,7 @@ def write_float(file, data):
     file.write(pack(("<%df" % len(data)), *data))
 
 
-def write_bytes(file, data, size=-1):
+def write_bytestring(file, data, size=-1):
     if size == -1:
         size = len(data)
     file.write(data[:size])
@@ -87,4 +87,4 @@ def write_bytes(file, data, size=-1):
 
 def write_string(file, data, size=-1):
     data = data.encode()
-    write_bytes(data, size)
+    write_bytestring(file, data, size)

@@ -21,7 +21,7 @@
 
 from struct import unpack, pack
 from .constants import MDLEffects, MDLSyncType
-from .utils import read_byte, read_bytestring, read_float, read_int, read_string, read_ushort, write_byte, write_bytes, write_float, write_int, write_string
+from .utils import read_byte, read_bytestring, read_float, read_int, read_string, read_ushort, write_byte, write_bytestring, write_float, write_int, write_string
 
 
 class MDL:
@@ -64,12 +64,12 @@ class MDL:
             if not sub:
                 write_int(mdl.file, self.type)
                 if self.type:
-                    write_int(len(self.skins))
-                    write_float(self.times)
+                    write_int(mdl.file, len(self.skins))
+                    write_float(mdl.file, self.times)
                     for subskin in self.skins:
                         subskin.write(mdl, 1)
                     return
-            write_bytes(self.pixels)
+            write_bytestring(mdl.file, self.pixels)
 
         def read_pixels(self, mdl):
             size = self.width * self.height
@@ -342,21 +342,21 @@ class MDL:
 
     def write(self, filepath):
         self.file = open(filepath, "wb")
-        write_string(self.ident, 4)
-        write_int(self.version)
-        write_float(self.scale)
-        write_float(self.scale_origin)
-        write_float(self.boundingradius)
-        write_float(self.eyeposition)
-        write_int(len(self.skins))
-        write_int((self.skinwidth, self.skinheight))
-        write_int(len(self.stverts))
-        write_int(len(self.tris))
-        write_int(len(self.frames))
-        write_int(self.synctype)
+        write_string(self.file, self.ident, 4)
+        write_int(self.file, self.version)
+        write_float(self.file, self.scale)
+        write_float(self.file, self.scale_origin)
+        write_float(self.file, self.boundingradius)
+        write_float(self.file, self.eyeposition)
+        write_int(self.file, len(self.skins))
+        write_int(self.file, (self.skinwidth, self.skinheight))
+        write_int(self.file, len(self.stverts))
+        write_int(self.file, len(self.tris))
+        write_int(self.file, len(self.frames))
+        write_int(self.file, self.synctype)
         if self.version >= 6:
-            write_int(self.flags)
-            write_float(self.size)
+            write_int(self.file, self.flags)
+            write_float(self.file, self.size)
         # write out the skin data
         for skin in self.skins:
             skin.write(self)

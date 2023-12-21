@@ -237,7 +237,7 @@ def parse_effects(fx_group):
     for i, v in enumerate(effects):
         fx = getattr(fx_group, v)
         if fx:
-            flags += MDLEffects[v].value
+            flags += MDLEffects(v).value
     return flags
 
 
