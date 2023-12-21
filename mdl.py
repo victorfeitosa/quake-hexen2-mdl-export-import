@@ -21,7 +21,7 @@
 
 from struct import unpack, pack
 from .constants import MDLEffects, MDLSyncType
-from .utils import read_byte, read_bytes, read_float, read_int, read_string, read_ushort, write_byte, write_bytes, write_float, write_int, write_string
+from .utils import read_byte, read_bytestring, read_float, read_int, read_string, read_ushort, write_byte, write_bytes, write_float, write_int, write_string
 
 
 class MDL:
@@ -47,11 +47,11 @@ class MDL:
                 self.type = 0
                 self.read_pixels(mdl)
                 return self
-            self.type = mdl.read_int()
+            self.type = read_int(mdl.file)
             if self.type:
                 # skin group
-                num = mdl.read_int()
-                self.times = mdl.read_float(num)
+                num = read_int(mdl.file)
+                self.times = read_float(mdl.file, num)
                 self.skins = []
                 for _ in range(num):
                     self.skins.append(MDL.Skin().read(mdl, 1))
@@ -62,18 +62,18 @@ class MDL:
 
         def write(self, mdl, sub=0):
             if not sub:
-                mdl.write_int(self.type)
+                write_int(mdl.file, self.type)
                 if self.type:
-                    mdl.write_int(len(self.skins))
-                    mdl.write_float(self.times)
+                    write_int(len(self.skins))
+                    write_float(self.times)
                     for subskin in self.skins:
                         subskin.write(mdl, 1)
                     return
-            mdl.write_bytes(self.pixels)
+            write_bytes(self.pixels)
 
         def read_pixels(self, mdl):
             size = self.width * self.height
-            self.pixels = mdl.read_bytes(size)
+            self.pixels = read_bytestring(mdl.file, size)
 
     class STVert:
         def __init__(self, st=None, onseam=False):
@@ -84,13 +84,13 @@ class MDL:
             pass
 
         def read(self, mdl):
-            self.onseam = mdl.read_int()
-            self.s, self.t = mdl.read_int(2)
+            self.onseam = read_int(mdl.file)
+            self.s, self.t = read_int(mdl.file, 2)
             return self
 
         def write(self, mdl):
-            mdl.write_int(self.onseam)
-            mdl.write_int((self.s, self.t))
+            write_int(mdl.file, self.onseam)
+            write_int(mdl.file, (self.s, self.t))
 
     class Tri:
         def __init__(self, verts=None, facesfront=True):
@@ -100,13 +100,13 @@ class MDL:
             self.verts = verts
 
         def read(self, mdl):
-            self.facesfront = mdl.read_int()
-            self.verts = mdl.read_int(3)
+            self.facesfront = read_int(mdl.file)
+            self.verts = read_int(mdl.file, 3)
             return self
 
         def write(self, mdl):
-            mdl.write_int(self.facesfront)
-            mdl.write_int(self.verts)
+            write_int(mdl.file, self.facesfront)
+            write_int(mdl.file, self.verts)
 
     class NTri:
         def __init__(self, verts=None, facesfront=True, stverts=None):
@@ -120,14 +120,14 @@ class MDL:
             self.stverts = stverts
 
         def read(self, mdl):
-            self.facesfront = mdl.read_int()
-            self.verts = mdl.read_ushort(3)
-            self.stverts = mdl.read_ushort(3)
+            self.facesfront = read_int(mdl.file)
+            self.verts = read_ushort(mdl.file, 3)
+            self.stverts = read_ushort(mdl.file, 3)
             return self
 
         def write(self, mdl):
-            mdl.write_int(self.facesfront)
-            mdl.write_int(self.verts)
+            write_int(mdl.file, self.facesfront)
+            write_int(mdl.file, self.verts)
 
     class Frame:
         def __init__(self):
@@ -183,11 +183,11 @@ class MDL:
             if sub:
                 self.type = 0
             else:
-                self.type = mdl.read_int()
+                self.type = read_int(mdl.file)
             if self.type:
-                num = mdl.read_int()
+                num = read_int(mdl.file)
                 self.read_bounds(mdl)
-                self.times = mdl.read_float(num)
+                self.times = read_float(mdl.file, num)
                 self.frames = []
                 for _ in range(num):
                     self.frames.append(MDL.Frame().read(mdl, numverts, 1))
@@ -199,11 +199,11 @@ class MDL:
 
         def write(self, mdl, sub=0):
             if not sub:
-                mdl.write_int(self.type)
+                write_int(mdl.file, self.type)
                 if self.type:
-                    mdl.write_int(len(self.frames))
+                    write_int(mdl.file, len(self.frames))
                     self.write_bounds(mdl)
-                    mdl.write_float(self.times)
+                    write_float(mdl.file, self.times)
                     for frame in self.frames:
                         frame.write(mdl, 1)
                     return
@@ -213,7 +213,7 @@ class MDL:
 
         def read_name(self, mdl):
             if mdl.version >= 6:
-                name = mdl.read_string(16)
+                name = read_string(mdl.file, 16)
             else:
                 name = ""
             if "\0" in name:
@@ -222,15 +222,15 @@ class MDL:
 
         def write_name(self, mdl):
             if mdl.version >= 6:
-                mdl.write_string(self.name, 16)
+                write_string(mdl.file, self.name, 16)
 
         def read_bounds(self, mdl):
-            self.mins = mdl.read_byte(4)[:3]  # discard normal index
-            self.maxs = mdl.read_byte(4)[:3]  # discard normal index
+            self.mins = read_byte(mdl.file, 4)[:3]  # discard normal index
+            self.maxs = read_byte(mdl.file, 4)[:3]  # discard normal index
 
         def write_bounds(self, mdl):
-            mdl.write_byte(self.mins + (0,))
-            mdl.write_byte(self.maxs + (0,))
+            write_byte(mdl.file, self.mins + (0,))
+            write_byte(mdl.file, self.maxs + (0,))
 
         def read_verts(self, mdl, num):
             self.verts = []
@@ -259,8 +259,8 @@ class MDL:
             pass
 
         def read(self, mdl):
-            self.r = mdl.read_byte(3)
-            self.ni = mdl.read_byte()
+            self.r = read_byte(mdl.file, 3)
+            self.ni = read_byte(mdl.file)
             return self
 
         def write(self, mdl, high=True):
@@ -268,8 +268,8 @@ class MDL:
                 r = tuple(map(lambda a: int(a * 256) & 255, self.r))
             else:
                 r = tuple(map(lambda a: int(a) & 255, self.r))
-            mdl.write_byte(r)
-            mdl.write_byte(self.ni)
+            write_byte(mdl.file, r)
+            write_byte(mdl.file, self.ni)
 
         def scale(self, mdl):
             self.r = tuple(map(lambda x, s, t: (x - t) / s,
@@ -296,26 +296,26 @@ class MDL:
         self.file = open(filepath, "rb")
         self.name = filepath.split('/')[-1]
         self.name = self.name.split('.')[0]
-        self.ident = self.read_string(4)
-        self.version = self.read_int()
+        self.ident = read_string(self.file, 4)
+        self.version = read_int(self.file)
         if self.ident not in ["IDPO", "MD16", "RAPO"] or self.version not in [3, 6, 50]:
             return None
-        self.scale = self.read_float(3)
-        self.scale_origin = self.read_float(3)
-        self.boundingradius = self.read_float()
-        self.eyeposition = self.read_float(3)
-        numskins = self.read_int()
-        self.skinwidth, self.skinheight = self.read_int(2)
-        numverts, numtris, numframes = self.read_int(3)
-        self.synctype = self.read_int()
+        self.scale = read_float(self.file, 3)
+        self.scale_origin = read_float(self.file, 3)
+        self.boundingradius = read_float(self.file)
+        self.eyeposition = read_float(self.file, 3)
+        numskins = read_int(self.file)
+        self.skinwidth, self.skinheight = read_int(self.file, 2)
+        numverts, numtris, numframes = read_int(self.file, 3)
+        self.synctype = read_int(self.file)
         if self.version == 6:
-            self.flags = self.read_int()
-            self.size = self.read_float()
+            self.flags = read_int(self.file)
+            self.size = read_float(self.file)
             self.num_st_verts = numverts
         if self.version == 50:
-            self.flags = self.read_int()
-            self.size = self.read_float()
-            self.num_st_verts = self.read_int()
+            self.flags = read_int(self.file)
+            self.size = read_float(self.file)
+            self.num_st_verts = read_int(self.file)
 
         # read in the skin data
         self.skins = []
@@ -342,21 +342,21 @@ class MDL:
 
     def write(self, filepath):
         self.file = open(filepath, "wb")
-        self.write_string(self.ident, 4)
-        self.write_int(self.version)
-        self.write_float(self.scale)
-        self.write_float(self.scale_origin)
-        self.write_float(self.boundingradius)
-        self.write_float(self.eyeposition)
-        self.write_int(len(self.skins))
-        self.write_int((self.skinwidth, self.skinheight))
-        self.write_int(len(self.stverts))
-        self.write_int(len(self.tris))
-        self.write_int(len(self.frames))
-        self.write_int(self.synctype)
+        write_string(self.ident, 4)
+        write_int(self.version)
+        write_float(self.scale)
+        write_float(self.scale_origin)
+        write_float(self.boundingradius)
+        write_float(self.eyeposition)
+        write_int(len(self.skins))
+        write_int((self.skinwidth, self.skinheight))
+        write_int(len(self.stverts))
+        write_int(len(self.tris))
+        write_int(len(self.frames))
+        write_int(self.synctype)
         if self.version >= 6:
-            self.write_int(self.flags)
-            self.write_float(self.size)
+            write_int(self.flags)
+            write_float(self.size)
         # write out the skin data
         for skin in self.skins:
             skin.write(self)

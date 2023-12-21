@@ -10,48 +10,48 @@ def getPaletteFromName(palette_name):
 
 # File reading and writing utils
 # Reading
-def read_byte(self, count=1):
+def read_byte(file, count=1):
     size = 1 * count
-    data = self.file.read(size)
+    data = file.read(size)
     data = unpack("<%dB" % count, data)
     if count == 1:
         return data[0]
     return data
 
 
-def read_int(self, count=1):
+def read_int(file, count=1):
     size = 4 * count
-    data = self.file.read(size)
+    data = file.read(size)
     data = unpack("<%di" % count, data)
     if count == 1:
         return data[0]
     return data
 
 
-def read_ushort(self, count=1):
+def read_ushort(file, count=1):
     size = 2 * count
-    data = self.file.read(size)
+    data = file.read(size)
     data = unpack("<%dH" % count, data)
     if count == 1:
         return data[0]
     return data
 
 
-def read_float(self, count=1):
+def read_float(file, count=1):
     size = 4 * count
-    data = self.file.read(size)
+    data = file.read(size)
     data = unpack("<%df" % count, data)
     if count == 1:
         return data[0]
     return data
 
 
-def read_bytes(self, size):
-    return self.file.read(size)
+def read_bytestring(file, size):
+    return file.read(size)
 
 
-def read_string(self, size):
-    data = self.file.read(size)
+def read_string(file, size):
+    data = file.read(size)
     s = ""
     for c in data:
         s = s + chr(c)
@@ -59,32 +59,32 @@ def read_string(self, size):
 
 
 # Writing
-def write_byte(self, data):
+def write_byte(file, data):
     if not hasattr(data, "__len__"):
         data = (data,)
-    self.file.write(pack(("<%dB" % len(data)), *data))
+    file.write(pack(("<%dB" % len(data)), *data))
 
 
-def write_int(self, data):
+def write_int(file, data):
     if not hasattr(data, "__len__"):
         data = (data,)
-    self.file.write(pack(("<%di" % len(data)), *data))
+    file.write(pack(("<%di" % len(data)), *data))
 
 
-def write_float(self, data):
+def write_float(file, data):
     if not hasattr(data, "__len__"):
         data = (data,)
-    self.file.write(pack(("<%df" % len(data)), *data))
+    file.write(pack(("<%df" % len(data)), *data))
 
 
-def write_bytes(self, data, size=-1):
+def write_bytes(file, data, size=-1):
     if size == -1:
         size = len(data)
-    self.file.write(data[:size])
+    file.write(data[:size])
     if size > len(data):
-        self.file.write(bytes(size - len(data)))
+        file.write(bytes(size - len(data)))
 
 
-def write_string(self, data, size=-1):
+def write_string(file, data, size=-1):
     data = data.encode()
-    self.write_bytes(data, size)
+    write_bytes(data, size)
