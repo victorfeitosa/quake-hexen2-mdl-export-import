@@ -32,10 +32,9 @@ bl_info = {
     "api": 35622,
     "location": "File > Import-Export",
     "description": "Import-Export Quake and HexenII MDL files (version 6 mdl files)",
-    "warning": "not even alpha",
+    "warning": "alpha version",
     "wiki_url": "",
     "tracker_url": "",
-    # "support": "UNOFFICIAL",
     "category": "Import-Export"}
 
 # To support reload properly, try to access a package var, if it's there,
@@ -65,54 +64,134 @@ class QFMDLEffects(bpy.types.PropertyGroup):
         name="EF_ROCKET",
         description="Leave a rocket trail",
     )
-    grenade: BoolProperty(name="EF_GRENADE", description="Leave a grenade trail")
-    gib: BoolProperty(name="EF_GIB", description="Leave a trail of blood")
-    rotate: BoolProperty(name="EF_ROTATE", description="Rotates model like an pickup")
-    tracer: BoolProperty(name="EF_TRACER", description="Green split trail")
-    zombie_gib: BoolProperty(name="EF_ZOMGIB", description="Leave a smaller blood trail")
-    tracer2: BoolProperty(name="EF_TRACER2", description="Orange split trail")
-    tracer3: BoolProperty(name="EF_TRACER3", description="Purple split trail")
+    grenade: BoolProperty(
+        name="EF_GRENADE",
+        description="Leave a grenade trail",
+    )
+    gib: BoolProperty(
+        name="EF_GIB",
+        description="Leave a trail of blood",
+    )
+    rotate: BoolProperty(
+        name="EF_ROTATE",
+        description="Rotates model like an pickup",
+    )
+    tracer: BoolProperty(
+        name="EF_TRACER",
+        description="Green split trail",
+    )
+    zombie_gib: BoolProperty(
+        name="EF_ZOMGIB",
+        description="Leave a smaller blood trail",
+    )
+    tracer2: BoolProperty(
+        name="EF_TRACER2",
+        description="Orange split trail",
+    )
+    tracer3: BoolProperty(
+        name="EF_TRACER3",
+        description="Purple split trail",
+    )
 
     # Hexen II effects
-    fireball: BoolProperty(name="EF_FIREBALL", description="Yellow transparent fireball trail")
-    ice: BoolProperty(name="EF_ICE", description="Blue white ice trail with gravity")
-    mipmap: BoolProperty(name="EF_MIP_MAP", description="Model has mip maps")
-    spit: BoolProperty(name="EF_SPIT", description="Black transparent trail with negative light")
-    transp: BoolProperty(name="EF_TRANSPARENT", description="Transparent sprite")
-    spell: BoolProperty(name="EF_SPELL", description="Vertical spray of particles")
-    solid: BoolProperty(name="EF_HOLEY", description="Solid model with black color")
-    trans: BoolProperty(name="EF_SPECIAL_TRANS", description="Model with alpha channel")
-    billboard: BoolProperty(name="EF_FACE_VIEW", description="Model is always facing the camera")
-    vorpal: BoolProperty(name="EF_VORP_MISSILE", description="Leaves trail at top and bottom of model")
-    setstaff: BoolProperty(name="EF_SET_STAFF", description="Trail that bobs left and right")
-    magicmis: BoolProperty(name="EF_MAGICMISSILE", description="Blue white particles with gravity")
-    boneshard: BoolProperty(name="EF_BONESHARD", description="Brown particles with gravity")
-    scarab: BoolProperty(name="EF_SCARAB", description="White transparent particles with little gravity")
-    acidball: BoolProperty(name="EF_ACIDBALL", description="Green drippy acid particles")
-    bloodshot: BoolProperty(name="EF_BLOODSHOT", description="Blood rain shot trail")
-    farmipmap: BoolProperty(name="EF_MIP_MAP_FAR", description="Model has mip maps for far distances")
+    fireball: BoolProperty(
+        name="EF_FIREBALL",
+        description="Yellow transparent fireball trail",
+    )
+    ice: BoolProperty(
+        name="EF_ICE",
+        description="Blue white ice trail with gravity",
+    )
+    mipmap: BoolProperty(
+        name="EF_MIP_MAP",
+        description="Model has mip maps",
+    )
+    spit: BoolProperty(
+        name="EF_SPIT",
+        description="Black transparent trail with negative light",
+    )
+    transp: BoolProperty(
+        name="EF_TRANSPARENT",
+        description="Transparent sprite",
+    )
+    spell: BoolProperty(
+        name="EF_SPELL",
+        description="Vertical spray of particles",
+    )
+    solid: BoolProperty(
+        name="EF_HOLEY",
+        description="Solid model with black color",
+    )
+    trans: BoolProperty(
+        name="EF_SPECIAL_TRANS",
+        description="Model with alpha channel",
+    )
+    billboard: BoolProperty(
+        name="EF_FACE_VIEW",
+        description="Model is always facing the camera",
+    )
+    vorpal: BoolProperty(
+        name="EF_VORP_MISSILE",
+        description="Leaves trail at top and bottom of model",
+    )
+    setstaff: BoolProperty(
+        name="EF_SET_STAFF",
+        description="Trail that bobs left and right",
+    )
+    magicmis: BoolProperty(
+        name="EF_MAGICMISSILE",
+        description="Blue white particles with gravity",
+    )
+    boneshard: BoolProperty(
+        name="EF_BONESHARD",
+        description="Brown particles with gravity",
+    )
+    scarab: BoolProperty(
+        name="EF_SCARAB",
+        description="White transparent particles with little gravity",
+    )
+    acidball: BoolProperty(
+        name="EF_ACIDBALL",
+        description="Green drippy acid particles",
+    )
+    bloodshot: BoolProperty(
+        name="EF_BLOODSHOT",
+        description="Blood rain shot trail",
+    )
+    farmipmap: BoolProperty(
+        name="EF_MIP_MAP_FAR",
+        description="Model has mip maps for far distances",
+    )
 
 
 class QFMDLSettings(bpy.types.PropertyGroup):
     eyeposition: FloatVectorProperty(
         name="Eye Position",
-        description="View possion relative to object origin")
+        description="View possion relative to object origin",
+    )
     synctype: EnumProperty(
         items=SYNCTYPE,
         name="Sync Type",
-        description="Add random time offset for automatic animations")
+        description="Add random time offset for automatic animations",
+    )
     script: StringProperty(
         name="Script",
-        description="Script for animating frames and skins")
+        description="Script for animating frames and skins",
+    )
     xform: BoolProperty(
         name="Auto transform",
         description="Auto-apply location/rotation/scale when exporting",
-        default=True)
+        default=True,
+    )
     md16: BoolProperty(
         name="16-bit",
-        description="16 bit vertex coordinates: QuakeForge only")
-    effects: PointerProperty(name="MDL Effects", type=QFMDLEffects)
-    
+        description="16 bit vertex coordinates: QuakeForge only",
+    )
+    effects: PointerProperty(
+        name="MDL Effects",
+        type=QFMDLEffects,
+    )
+
 
 class ImportMDL6(bpy.types.Operator, ImportHelper):
     '''Load a Quake MDL File'''
@@ -154,19 +233,19 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         items=PALETTES,
         name="MDL Palette",
         description="Game color palette",
-        default="QUAKE"
+        default="QUAKE",
     )
 
     export_scale: FloatProperty(
         name="Scale factor",
         description="Import model scale factor (usually 5)",
-        default=10
+        default=10,
     )
 
     @classmethod
     def poll(cls, context):
-        return (context.active_object != None
-                and type(context.active_object.data) == bpy.types.Mesh)
+        return (context.active_object is not None
+                and context.active_object.data is bpy.types.Mesh)
 
     def execute(self, context):
         from . import export_mdl
@@ -175,7 +254,8 @@ class ExportMDL6(bpy.types.Operator, ExportHelper):
         try:
             return export_mdl.export_mdl(self, context, **keywords)
         except IndexError:
-            self.report({"WARNING"}, "Error converting MDL vertices. Do you have any unapplied topology modifiers?")
+            self.report(
+                {"WARNING"}, "Error converting MDL vertices. Do you have any unapplied topology modifiers?")
             return {'CANCELLED'}
         return export_result
 
@@ -185,11 +265,11 @@ class MDL_PT_Panel(bpy.types.Panel):
     bl_region_type = 'WINDOW'
     bl_context = 'object'
     bl_label = 'Quake MDL'
-    
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
-        
+
         return obj and obj.type == 'MESH'
 
     def draw(self, context):
@@ -200,7 +280,7 @@ class MDL_PT_Panel(bpy.types.Panel):
         layout.prop(obj.qfmdl, "script")
         layout.prop(obj.qfmdl, "xform")
         layout.prop(obj.qfmdl, "md16")
-        
+
         layout.label(text="Quake effects")
 
         effects = obj.qfmdl.effects

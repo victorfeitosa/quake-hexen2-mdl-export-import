@@ -21,6 +21,8 @@
 
 from struct import unpack, pack
 from .constants import MDLEffects, MDLSyncType
+from .utils import read_byte, read_bytes, read_float, read_int, read_string, read_ushort, write_byte, write_bytes, write_float, write_int, write_string
+
 
 class MDL:
     class Skin:
@@ -273,74 +275,6 @@ class MDL:
             self.r = tuple(map(lambda x, s, t: (x - t) / s,
                                self.r, mdl.scale, mdl.scale_origin))
 
-    def read_byte(self, count=1):
-        size = 1 * count
-        data = self.file.read(size)
-        data = unpack("<%dB" % count, data)
-        if count == 1:
-            return data[0]
-        return data
-
-    def read_int(self, count=1):
-        size = 4 * count
-        data = self.file.read(size)
-        data = unpack("<%di" % count, data)
-        if count == 1:
-            return data[0]
-        return data
-
-    def read_ushort(self, count=1):
-        size = 2 * count
-        data = self.file.read(size)
-        data = unpack("<%dH" % count, data)
-        if count == 1:
-            return data[0]
-        return data
-
-    def read_float(self, count=1):
-        size = 4 * count
-        data = self.file.read(size)
-        data = unpack("<%df" % count, data)
-        if count == 1:
-            return data[0]
-        return data
-
-    def read_bytes(self, size):
-        return self.file.read(size)
-
-    def read_string(self, size):
-        data = self.file.read(size)
-        s = ""
-        for c in data:
-            s = s + chr(c)
-        return s
-
-    def write_byte(self, data):
-        if not hasattr(data, "__len__"):
-            data = (data,)
-        self.file.write(pack(("<%dB" % len(data)), *data))
-
-    def write_int(self, data):
-        if not hasattr(data, "__len__"):
-            data = (data,)
-        self.file.write(pack(("<%di" % len(data)), *data))
-
-    def write_float(self, data):
-        if not hasattr(data, "__len__"):
-            data = (data,)
-        self.file.write(pack(("<%df" % len(data)), *data))
-
-    def write_bytes(self, data, size=-1):
-        if size == -1:
-            size = len(data)
-        self.file.write(data[:size])
-        if size > len(data):
-            self.file.write(bytes(size - len(data)))
-
-    def write_string(self, data, size=-1):
-        data = data.encode()
-        self.write_bytes(data, size)
-
     def __init__(self, name="mdl", md16=False):
         self.name = name
         self.ident = md16 and "MD16" or "IDPO"
@@ -394,7 +328,7 @@ class MDL:
             self.stverts.append(MDL.STVert().read(self))
         # read in the tris
         self.tris = []
-        if(self.version < 50):
+        if (self.version < 50):
             for _ in range(numtris):
                 self.tris.append(MDL.Tri().read(self))
         else:

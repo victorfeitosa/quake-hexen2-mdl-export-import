@@ -1,4 +1,3 @@
-# vim:ts=4:et
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
@@ -16,8 +15,6 @@
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 # ##### END GPL LICENSE BLOCK #####
-
-# <pep8 compliant>
 
 import bpy
 from bpy_extras.object_utils import object_data_add
@@ -105,7 +102,8 @@ def make_skin(mdl, mesh, palette):
     if len(materials) > 0:
         for mat in materials:
             allTextureNodes = list(
-                filter(lambda node: node.type == "TEX_IMAGE", mat.node_tree.nodes))
+                filter(lambda node: node.type == "TEX_IMAGE",
+                       mat.node_tree.nodes))
             if len(allTextureNodes) > 1:  # === skingroup
                 skingroup = MDL.Skin()
                 skingroup.type = 1
@@ -126,7 +124,7 @@ def make_skin(mdl, mesh, palette):
                 for node in allTextureNodes:
                     if node.type == "TEX_IMAGE":
                         image = node.image
-                        if(image.size[0] > 0 and image.size[1] > 0):
+                        if (image.size[0] > 0 and image.size[1] > 0):
                             mdl.skinwidth, mdl.skinheight = (4, 4)
                             skin = convert_image(image, palette)
                         mdl.skins.append(skin)
@@ -242,8 +240,10 @@ def parse_effects(fx_group):
             flags += MDLEffects[v].value
     return flags
 
+
 def get_properties(operator, mdl, obj, export_scale):
-    mdl.eyeposition = tuple(map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
+    mdl.eyeposition = tuple(
+        map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
     mdl.synctype = MDLSyncType[obj.qfmdl.synctype].value
     mdl.flags = parse_effects(obj.qfmdl.effects)
     if obj.qfmdl.md16:
@@ -286,7 +286,7 @@ def process_skin(mdl, skin, palette, ingroup=False):
 
 def process_frame(mdl, scene, frame, vertmap, ingroup=False,
                   frameno=None, name='frame'):
-    if frameno == None:
+    if frameno is None:
         frameno = scene.frame_current + scene.frame_subframe
     if 'frameno' in frame:
         frameno = float(frame['frameno'])
