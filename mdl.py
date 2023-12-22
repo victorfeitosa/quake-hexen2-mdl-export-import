@@ -284,15 +284,16 @@ class MDL:
         self.boundingradius = 1.0  # FIXME
         self.eyeposition = (0.0, 0.0, 0.0)  # FIXME
         self.synctype = MDLSyncType["ST_SYNC"].value
-        self.flags = 0  # FIXME config
-        self.size = 0  # FIXME ???
+        self.flags = 0
+        self.size = 0
         self.skins = []
+        self.numverts = 0
         self.stverts = []
         self.tris = []
         self.frames = []
-        pass
 
     def read(self, filepath):
+        # Reading MDL file header
         self.file = open(filepath, "rb")
         self.name = filepath.split('/')[-1]
         self.name = self.name.split('.')[0]
@@ -308,13 +309,13 @@ class MDL:
         self.skinwidth, self.skinheight = read_int(self.file, 2)
         numverts, numtris, numframes = read_int(self.file, 3)
         self.synctype = read_int(self.file)
-        if self.version == 6:
+        if self.version >= 6:
             self.flags = read_int(self.file)
             self.size = read_float(self.file)
+
+        if self.version == 6:
             self.num_st_verts = numverts
         if self.version == 50:
-            self.flags = read_int(self.file)
-            self.size = read_float(self.file)
             self.num_st_verts = read_int(self.file)
 
         # read in the skin data
@@ -349,8 +350,9 @@ class MDL:
         write_float(self.file, self.boundingradius)
         write_float(self.file, self.eyeposition)
         write_int(self.file, len(self.skins))
-        write_int(self.file, (self.skinwidth, self.skinheight))
-        write_int(self.file, len(self.stverts))
+        write_int(self.file, self.skinwidth)
+        write_int(self.file, self.skinheight)
+        write_int(self.file, self.numverts)
         write_int(self.file, len(self.tris))
         write_int(self.file, len(self.frames))
         write_int(self.file, self.synctype)

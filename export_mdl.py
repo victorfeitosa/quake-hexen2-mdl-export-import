@@ -125,7 +125,7 @@ def make_skin(mdl, mesh, palette):
                     if node.type == "TEX_IMAGE":
                         image = node.image
                         if (image.size[0] > 0 and image.size[1] > 0):
-                            mdl.skinwidth, mdl.skinheight = (4, 4)
+                            mdl.skinwidth, mdl.skinheight = (image.size[0], image.size[1])
                             skin = convert_image(image, palette)
                         mdl.skins.append(skin)
             else:
@@ -355,6 +355,8 @@ def export_mdl(operator, context, filepath, palette, export_scale):
                 mesh.transform(mdl.obj.matrix_world)
             eframe = make_frame(mesh, vertmap, fnum)
             mdl.frames.append(eframe)
+
+    mdl.numverts = len(mdl.frames[0].verts)
     convert_stverts(mdl, mdl.stverts)
     mdl.size = calc_average_area(mdl)
     scale_verts(mdl)
