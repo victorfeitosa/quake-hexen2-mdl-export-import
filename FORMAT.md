@@ -21,6 +21,7 @@ struct mdl_header_t
   int synctype;         /* 0 = synchron, 1 = random */
   int flags;            /* state flag */
   float size;
+  int numstverts;       /* only present in Hexen II expansion pack mdl files */
 };
 ```
 
