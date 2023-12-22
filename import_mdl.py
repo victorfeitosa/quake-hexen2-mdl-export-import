@@ -1,4 +1,3 @@
-# vim:ts=4:et
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
@@ -17,20 +16,21 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-# <pep8 compliant>
-
 import bpy
 import importlib
 from bpy_extras.object_utils import object_data_add
-from mathutils import Vector,Matrix
+from mathutils import Vector, Matrix
 
+from .constants import MDLEffects, MDLSyncType
 from .mdl import MDL
 from .qfplist import pldata
 
+
 def make_verts(mdl, framenum, subframenum=0, scalefactor=1):
     '''
-    Create vertices for the specified frame. If frame type is truthy, the current frame is a group of
-    frames and will load the frame group instead of the single frame.
+    Create vertices for the specified frame. If frame type is truthy,
+    the current frame is a group of frames and will load the frame
+    group instead of the single frame.
     '''
 
     frame = mdl.frames[framenum]
@@ -39,17 +39,21 @@ def make_verts(mdl, framenum, subframenum=0, scalefactor=1):
     verts = []
     s = Vector([scalefactor * v for v in mdl.scale])
     o = Vector([scalefactor * v for v in mdl.scale_origin])
-    m = Matrix(((s.x,  0,  0,o.x),
-                (  0,s.y,  0,o.y),
-                (  0,  0,s.z,o.z),
-                (  0,  0,  0,  1)))
+    m = Matrix((
+        (s.x, 0, 0, o.x),
+        (0, s.y, 0, o.y),
+        (0, 0, s.z, o.z),
+        (0, 0, 0, 1)
+    ))
     for v in frame.verts:
         verts.append(m @ Vector(v.r))
     return verts
 
+
 def make_faces(mdl):
     '''
-    Create the faces according to the mdl description, referencing the verts created.
+    Create the faces according to the mdl description, referencing
+    the verts created.
     This also creates the uv coords for the faces
     '''
     faces = []
@@ -57,7 +61,7 @@ def make_faces(mdl):
     for tri in mdl.tris:
         # list of vertices in a tri
         tv = list(tri.verts)
-        sts = [] # UV coords
+        sts = []  # UV coords
         if mdl.version < 50:
             for v in tri.verts:
                 # UV vertex
@@ -68,7 +72,10 @@ def make_faces(mdl):
                     s += mdl.skinwidth / 2
                 # quake textures are top to bottom, but blender images
                 # are bottom to top
-                sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
+                sts.append((
+                    s * 1.0 / mdl.skinwidth,
+                    1 - t * 1.0 / mdl.skinheight,
+                ))
         else:
             for v in tri.stverts:
                 # UV vertex from a mdl v50
@@ -76,9 +83,11 @@ def make_faces(mdl):
                 s, t = (stv.s, stv.t)
                 if stv.onseam and not tri.facesfront:
                     s += mdl.skinwidth / 2
-                sts.append((s * 1.0 / mdl.skinwidth, 1 - t * 1.0 / mdl.skinheight))
-                
-                
+                sts.append((
+                    s * 1.0 / mdl.skinwidth,
+                    1 - t * 1.0 / mdl.skinheight,
+                ))
+
         # blender's and quake's vertex order seem to be opposed
         tv.reverse()
         sts.reverse()
@@ -90,6 +99,7 @@ def make_faces(mdl):
         faces.append(tv)
         uvs.append(sts)
     return faces, uvs
+
 
 def load_skins(mdl, palette):
     '''
@@ -106,17 +116,17 @@ def load_skins(mdl, palette):
                 c = palette[d[j * mdl.skinwidth + k]]
                 # quake textures are top to bottom, but blender images
                 # are bottom to top
-                l = ((mdl.skinheight - 1 - j) * mdl.skinwidth + k) * 4
-                p[l + 0] = c[0] / 255.0 # Red
-                p[l + 1] = c[1] / 255.0 # Green
-                p[l + 2] = c[2] / 255.0 # Blue
-                p[l + 3] = 1.0 # Alpha
+                ln = ((mdl.skinheight - 1 - j) * mdl.skinwidth + k) * 4
+                p[ln + 0] = c[0] / 255.0  # Red
+                p[ln + 1] = c[1] / 255.0  # Green
+                p[ln + 2] = c[2] / 255.0  # Blue
+                p[ln + 3] = 1.0           # Alpha
 
         img.pixels[:] = p[:]
         img.pack()
         img.use_fake_user = True
 
-    mdl.images=[]
+    mdl.images = []
     for i, skin in enumerate(mdl.skins):
         if skin.type:
             for j, subskin in enumerate(skin.skins):
@@ -124,23 +134,24 @@ def load_skins(mdl, palette):
         else:
             load_skin(skin, "%s_%d" % (mdl.name, i))
 
+
 def setup_skins(mdl, uvs, palette):
     '''
-    Setup skin slots and materials and sets UV coordinates in the loaded texture
+    Setup skin slots and materials and sets UV coordinates in
+    the loaded texture
     '''
     load_skins(mdl, palette)
     img = mdl.images[0]   # use the first skin for now
     mdl.mesh.uv_layers.new(name=mdl.name)
     uvloop = mdl.mesh.uv_layers[0]
-    
+
     # UV Loading=============
     for i, _ in enumerate(uvs):
         poly = mdl.mesh.polygons[i]
         mdl_uv = uvs[i]
-        for j,k in enumerate(poly.loop_indices):
+        for j, k in enumerate(poly.loop_indices):
             uvloop.data[k].uv = mdl_uv[j]
-            
-            
+
     # Material and texture loading=======
     mat = bpy.data.materials.new(mdl.name)
     mat.use_nodes = True
@@ -160,9 +171,11 @@ def setup_skins(mdl, uvs, palette):
 
     mdl.mesh.materials.append(mat)
 
+
 def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
     '''
-    Construct a shape key for the particular frame or subframe in the Blender model
+    Construct a shape key for the particular frame or subframe in
+    the Blender model
     '''
     frame = mdl.frames[framenum]
     name = "%s_%d" % (mdl.name, framenum)
@@ -178,12 +191,13 @@ def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
     mdl.keys.append(frame.key)
     s = Vector([scalefactor * v for v in mdl.scale])
     o = Vector([scalefactor * v for v in mdl.scale_origin])
-    m = Matrix(((s.x,  0,  0,o.x),
-                (  0,s.y,  0,o.y),
-                (  0,  0,s.z,o.z),
-                (  0,  0,  0,  1)))
+    m = Matrix(((s.x,  0,  0, o.x),
+                (0, s.y,  0, o.y),
+                (0,  0, s.z, o.z),
+                (0,  0,  0,  1)))
     for i, v in enumerate(frame.verts):
         frame.key.data[i].co = m @ Vector(v.r)
+
 
 def build_shape_keys(mdl, scalefactor=1):
     '''
@@ -197,9 +211,11 @@ def build_shape_keys(mdl, scalefactor=1):
         frame = mdl.frames[i]
         if frame.type:
             for j in range(len(frame.frames)):
-                make_shape_key(mdl=mdl, framenum=i, subframenum=j, scalefactor=scalefactor)
+                make_shape_key(mdl=mdl, framenum=i,
+                               subframenum=j, scalefactor=scalefactor)
         else:
             make_shape_key(mdl=mdl, framenum=i, scalefactor=scalefactor)
+
 
 def set_keys(act, data):
     '''
@@ -208,11 +224,12 @@ def set_keys(act, data):
     for d in data:
         key, co = d
         dp = """key_blocks["%s"].value""" % key.name
-        fc = act.fcurves.new(data_path = dp)
+        fc = act.fcurves.new(data_path=dp)
         fc.keyframe_points.add(len(co))
         for i in range(len(co)):
             fc.keyframe_points[i].co = co[i]
             fc.keyframe_points[i].interpolation = 'LINEAR'
+
 
 def build_actions(mdl):
     '''
@@ -242,7 +259,7 @@ def build_actions(mdl):
                     co.append((len(frame.frames) * 1.0, 0.0))
                 data.append((subframe.key, co))
                 if subframe.key in other_keys:
-                    del(other_keys[other_keys.index(subframe.key)])
+                    del (other_keys[other_keys.index(subframe.key)])
             co = [(1.0, 0.0), (len(frame.frames) * 1.0, 0.0)]
             for k in other_keys:
                 data.append((k, co))
@@ -250,13 +267,14 @@ def build_actions(mdl):
             subframe.frameno = start_frame + j
             data.append((frame.key, [(1.0, 1.0)]))
             if frame.key in other_keys:
-                del(other_keys[other_keys.index(frame.key)])
+                del (other_keys[other_keys.index(frame.key)])
             co = [(1.0, 0.0)]
             for k in other_keys:
                 data.append((k, co))
         set_keys(act, data)
         track.strips.new(act.name, start_frame, act)
         start_frame += int(act.frame_range[1])
+
 
 def merge_frames(mdl):
     def get_base(name):
@@ -285,11 +303,12 @@ def merge_frames(mdl):
         mdl.frames[i:j] = [f]
         i += 1
 
+
 def write_text(mdl):
     '''
     Creates text animation and configuration file for the imported model
     '''
-    header="""
+    header = """
     /*  This script represents the animation data within the model file. It
         is generated automatically on import, and is optional when exporting.
         If no script is used when exporting, frames will be exported one per
@@ -347,7 +366,7 @@ def write_text(mdl):
                     (array of string:float).
     */
     """
-    d={'frames':[], 'skins':[]}
+    d = {'frames': [], 'skins': []}
     for f in mdl.frames:
         d['frames'].append(f.info())
     for s in mdl.skins:
@@ -358,26 +377,31 @@ def write_text(mdl):
     txt = bpy.data.texts.new(mdl.name)
     txt.from_string(string)
     mdl.text = txt
-    
+
+
 def parse_flags(fx_group, flags):
     effects = fx_group.__annotations__.items()
-    for i, (key, _) in enumerate(effects):
-        setattr(fx_group, key, (flags & MDL.EFFECTS[i][1] > 0))
+    for i, (key, v) in enumerate(effects):
+        setattr(fx_group, key,
+                (flags & MDLEffects[v.keywords['name']].value > 0))
+
 
 def set_properties(mdl, scalefactor=1):
-    mdl.obj.qfmdl.eyeposition = tuple(map(lambda v: v*scalefactor, mdl.eyeposition))
+    mdl.obj.qfmdl.eyeposition = tuple(
+        map(lambda v: v*scalefactor, mdl.eyeposition))
     try:
-        mdl.obj.qfmdl.synctype = MDL.SYNCTYPE[mdl.synctype]
+        mdl.obj.qfmdl.synctype = MDLSyncType(mdl.synctype).name
     except IndexError:
         mdl.obj.qfmdl.synctype = 'ST_SYNC'
 
     parse_flags(mdl.obj.qfmdl.effects, mdl.flags)
-    mdl.obj.qfmdl.script = mdl.text.name #FIXME really want the text object
+    mdl.obj.qfmdl.script = mdl.text.name  # FIXME really want the text object
     mdl.obj.qfmdl.md16 = (mdl.ident == "MD16")
+
 
 def import_mdl(operator, context, filepath, palette, import_scale):
     bpy.context.preferences.edit.use_global_undo = False
-    
+
     palette_module_name = "..{0}pal".format(palette.lower())
     palette = importlib.import_module(palette_module_name, __name__).palette
 
@@ -387,7 +411,7 @@ def import_mdl(operator, context, filepath, palette, import_scale):
     mdl = MDL()
     if not mdl.read(filepath):
         operator.report({'ERROR'},
-            "Unrecognized format: %s %d" % (mdl.ident, mdl.version))
+                        "Unrecognized format: %s %d" % (mdl.ident, mdl.version))
         return {'CANCELLED'}
     faces, uvs = make_faces(mdl)
     verts = make_verts(mdl, 0, scalefactor=import_scale)

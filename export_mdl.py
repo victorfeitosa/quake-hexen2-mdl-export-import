@@ -1,4 +1,3 @@
-# vim:ts=4:et
 # ##### BEGIN GPL LICENSE BLOCK #####
 #
 #  This program is free software; you can redistribute it and/or
@@ -17,8 +16,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-# <pep8 compliant>
-
 import bpy
 from bpy_extras.object_utils import object_data_add
 from mathutils import Vector, Matrix
@@ -26,7 +23,8 @@ from mathutils import Vector, Matrix
 from .utils import getPaletteFromName
 from .qfplist import pldata, PListError
 from .qnorm import map_normal
-from .mdl import MDL, MDLSyncTypeEnum
+from .mdl import MDL
+from .constants import MDLEffects, MDLSyncType
 
 
 def check_faces(mesh):
@@ -104,7 +102,8 @@ def make_skin(mdl, mesh, palette):
     if len(materials) > 0:
         for mat in materials:
             allTextureNodes = list(
-                filter(lambda node: node.type == "TEX_IMAGE", mat.node_tree.nodes))
+                filter(lambda node: node.type == "TEX_IMAGE",
+                       mat.node_tree.nodes))
             if len(allTextureNodes) > 1:  # === skingroup
                 skingroup = MDL.Skin()
                 skingroup.type = 1
@@ -125,8 +124,8 @@ def make_skin(mdl, mesh, palette):
                 for node in allTextureNodes:
                     if node.type == "TEX_IMAGE":
                         image = node.image
-                        if(image.size[0] > 0 and image.size[1] > 0):
-                            mdl.skinwidth, mdl.skinheight = (4, 4)
+                        if (image.size[0] > 0 and image.size[1] > 0):
+                            mdl.skinwidth, mdl.skinheight = (image.size[0], image.size[1])
                             skin = convert_image(image, palette)
                         mdl.skins.append(skin)
             else:
@@ -238,12 +237,14 @@ def parse_effects(fx_group):
     for i, v in enumerate(effects):
         fx = getattr(fx_group, v)
         if fx:
-            flags += MDL.EFFECTS[i][1]
+            flags += MDLEffects(v).value
     return flags
 
+
 def get_properties(operator, mdl, obj, export_scale):
-    mdl.eyeposition = tuple(map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
-    mdl.synctype = MDLSyncTypeEnum[obj.qfmdl.synctype]
+    mdl.eyeposition = tuple(
+        map(lambda v: v*export_scale, obj.qfmdl.eyeposition))
+    mdl.synctype = MDLSyncType[obj.qfmdl.synctype].value
     mdl.flags = parse_effects(obj.qfmdl.effects)
     if obj.qfmdl.md16:
         mdl.ident = "MD16"
@@ -285,7 +286,7 @@ def process_skin(mdl, skin, palette, ingroup=False):
 
 def process_frame(mdl, scene, frame, vertmap, ingroup=False,
                   frameno=None, name='frame'):
-    if frameno == None:
+    if frameno is None:
         frameno = scene.frame_current + scene.frame_subframe
     if 'frameno' in frame:
         frameno = float(frame['frameno'])
@@ -354,6 +355,8 @@ def export_mdl(operator, context, filepath, palette, export_scale):
                 mesh.transform(mdl.obj.matrix_world)
             eframe = make_frame(mesh, vertmap, fnum)
             mdl.frames.append(eframe)
+
+    mdl.numverts = len(mdl.frames[0].verts)
     convert_stverts(mdl, mdl.stverts)
     mdl.size = calc_average_area(mdl)
     scale_verts(mdl)
