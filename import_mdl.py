@@ -37,8 +37,8 @@ def make_verts(mdl, framenum, subframenum=0, scalefactor=1):
     if frame.type:
         frame = frame.frames[subframenum]
     verts = []
-    s = Vector([scalefactor * v for v in mdl.scale])
-    o = Vector([scalefactor * v for v in mdl.scale_origin])
+    s = Vector([v for v in mdl.scale]) * scalefactor
+    o = Vector([v for v in mdl.scale_origin]) * scalefactor
     m = Matrix((
         (s.x, 0, 0, o.x),
         (0, s.y, 0, o.y),
@@ -189,8 +189,8 @@ def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
     frame.key = mdl.obj.shape_key_add(name=name)
     frame.key.value = 0.0
     mdl.keys.append(frame.key)
-    s = Vector([scalefactor * v for v in mdl.scale])
-    o = Vector([scalefactor * v for v in mdl.scale_origin])
+    s = Vector([v for v in mdl.scale]) * scalefactor
+    o = Vector([v for v in mdl.scale_origin]) * scalefactor
     m = Matrix(((s.x,  0,  0, o.x),
                 (0, s.y,  0, o.y),
                 (0,  0, s.z, o.z),
