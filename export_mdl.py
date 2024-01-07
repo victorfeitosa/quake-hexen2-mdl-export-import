@@ -209,7 +209,7 @@ def scale_verts(mdl):
     tf = MDL.Frame()
     for f in mdl.frames:
         tf.add_frame(f, 0.0)    # let the frame class do the dirty work for us
-    size = (Vector(tf.maxs) - Vector(tf.mins))  # size vector based on Vmax - Vmin
+    size = Vector(tf.maxs) - Vector(tf.mins)
     rsqr = tuple(map(lambda a, b: max(abs(a), abs(b)) ** 2, tf.mins, tf.maxs))
     mdl.boundingradius = ((rsqr[0] + rsqr[1] + rsqr[2]) ** 0.5)
     mdl.scale_origin = tf.mins
@@ -326,14 +326,9 @@ def export_mdl(operator, context, filepath, palette, export_scale):
     depsgraph = context.evaluated_depsgraph_get()
     ob_eval = obj.evaluated_get(depsgraph)
     objname = ob_eval.name_full
-    # bpy.ops.transform.resize(value=(export_scale, export_scale, export_scale))
 
     palette = getPaletteFromName(palette)
 
-    # if not check_faces(mesh):
-    #    operator.report({'ERROR'},
-    #                    "Mesh has faces with more than 3 vertices.")
-    #    return {'CANCELLED'}
     mdl = MDL(obj.name)
     mdl.obj = obj
     if not get_properties(operator, mdl, obj, export_scale):
@@ -363,7 +358,5 @@ def export_mdl(operator, context, filepath, palette, export_scale):
     mdl.size = calc_average_area(mdl)
     scale_verts(mdl)
     mdl.write(filepath)
-    # bpy.ops.transform.resize(
-    #     value=(1/export_scale, 1/export_scale, 1/export_scale))
 
     return {'FINISHED'}

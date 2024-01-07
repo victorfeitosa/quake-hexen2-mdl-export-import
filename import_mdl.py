@@ -388,7 +388,7 @@ def parse_flags(fx_group, flags):
 
 def set_properties(mdl):
     mdl.obj.qfmdl.eyeposition = tuple(
-        map(lambda v: v*mdl.scale_factor, mdl.eyeposition))
+        map(lambda v: v * mdl.scale_factor, mdl.eyeposition))
     try:
         mdl.obj.qfmdl.synctype = MDLSyncType(mdl.synctype).name
     except IndexError:
