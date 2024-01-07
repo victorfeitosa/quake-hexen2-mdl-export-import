@@ -291,6 +291,7 @@ class MDL:
         self.stverts = []
         self.tris = []
         self.frames = []
+        self.scale_factor = 1.0
 
     def read(self, filepath):
         # Reading MDL file header
@@ -345,10 +346,13 @@ class MDL:
         self.file = open(filepath, "wb")
         write_string(self.file, self.ident, 4)
         write_int(self.file, self.version)
-        write_float(self.file, self.scale)
-        write_float(self.file, self.scale_origin)
-        write_float(self.file, self.boundingradius)
-        write_float(self.file, self.eyeposition)
+        write_float(self.file, tuple(
+            v * self.scale_factor for v in self.scale))
+        write_float(self.file, list(
+            v * self.scale_factor for v in self.scale_origin))
+        write_float(self.file, self.boundingradius * self.scale_factor)
+        write_float(self.file, tuple(
+            v * self.scale_factor for v in self.eyeposition))
         write_int(self.file, len(self.skins))
         write_int(self.file, self.skinwidth)
         write_int(self.file, self.skinheight)

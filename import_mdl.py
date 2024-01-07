@@ -26,7 +26,7 @@ from .mdl import MDL
 from .qfplist import pldata
 
 
-def make_verts(mdl, framenum, subframenum=0, scalefactor=1):
+def make_verts(mdl, framenum, subframenum=0):
     '''
     Create vertices for the specified frame. If frame type is truthy,
     the current frame is a group of frames and will load the frame
@@ -37,8 +37,8 @@ def make_verts(mdl, framenum, subframenum=0, scalefactor=1):
     if frame.type:
         frame = frame.frames[subframenum]
     verts = []
-    s = Vector([v for v in mdl.scale]) * scalefactor
-    o = Vector([v for v in mdl.scale_origin]) * scalefactor
+    s = Vector([v for v in mdl.scale]) * mdl.scale_factor
+    o = Vector([v for v in mdl.scale_origin]) * mdl.scale_factor
     m = Matrix((
         (s.x, 0, 0, o.x),
         (0, s.y, 0, o.y),
@@ -172,7 +172,7 @@ def setup_skins(mdl, uvs, palette):
     mdl.mesh.materials.append(mat)
 
 
-def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
+def make_shape_key(mdl, framenum, subframenum=0):
     '''
     Construct a shape key for the particular frame or subframe in
     the Blender model
@@ -189,8 +189,8 @@ def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
     frame.key = mdl.obj.shape_key_add(name=name)
     frame.key.value = 0.0
     mdl.keys.append(frame.key)
-    s = Vector([v for v in mdl.scale]) * scalefactor
-    o = Vector([v for v in mdl.scale_origin]) * scalefactor
+    s = Vector([v for v in mdl.scale]) * mdl.scale_factor
+    o = Vector([v for v in mdl.scale_origin]) * mdl.scale_factor
     m = Matrix(((s.x,  0,  0, o.x),
                 (0, s.y,  0, o.y),
                 (0,  0, s.z, o.z),
@@ -199,7 +199,7 @@ def make_shape_key(mdl, framenum, subframenum=0, scalefactor=1):
         frame.key.data[i].co = m @ Vector(v.r)
 
 
-def build_shape_keys(mdl, scalefactor=1):
+def build_shape_keys(mdl):
     '''
     Build all the shape keys of a MDL frames into the Blender model
     '''
@@ -212,9 +212,9 @@ def build_shape_keys(mdl, scalefactor=1):
         if frame.type:
             for j in range(len(frame.frames)):
                 make_shape_key(mdl=mdl, framenum=i,
-                               subframenum=j, scalefactor=scalefactor)
+                               subframenum=j)
         else:
-            make_shape_key(mdl=mdl, framenum=i, scalefactor=scalefactor)
+            make_shape_key(mdl=mdl, framenum=i)
 
 
 def set_keys(act, data):
@@ -386,9 +386,9 @@ def parse_flags(fx_group, flags):
                 (flags & MDLEffects[v.keywords['name']].value > 0))
 
 
-def set_properties(mdl, scalefactor=1):
+def set_properties(mdl):
     mdl.obj.qfmdl.eyeposition = tuple(
-        map(lambda v: v*scalefactor, mdl.eyeposition))
+        map(lambda v: v*mdl.scale_factor, mdl.eyeposition))
     try:
         mdl.obj.qfmdl.synctype = MDLSyncType(mdl.synctype).name
     except IndexError:
@@ -414,7 +414,7 @@ def import_mdl(operator, context, filepath, palette, import_scale):
                         "Unrecognized format: %s %d" % (mdl.ident, mdl.version))
         return {'CANCELLED'}
     faces, uvs = make_faces(mdl)
-    verts = make_verts(mdl, 0, scalefactor=import_scale)
+    verts = make_verts(mdl, 0)
     mdl.mesh = bpy.data.meshes.new(mdl.name)
     mdl.mesh.from_pydata(verts, [], faces)
     mdl.obj = bpy.data.objects.new(mdl.name, mdl.mesh)
@@ -423,12 +423,13 @@ def import_mdl(operator, context, filepath, palette, import_scale):
     bpy.context.view_layer.objects.active = mdl.obj
     mdl.obj.select_set(True)
     setup_skins(mdl, uvs, palette)
+    mdl.scale_factor = import_scale
     if len(mdl.frames) > 1 or mdl.frames[0].type:
-        build_shape_keys(mdl, scalefactor=import_scale)
+        build_shape_keys(mdl)
         merge_frames(mdl)
         build_actions(mdl)
     write_text(mdl)
-    set_properties(mdl, scalefactor=import_scale)
+    set_properties(mdl)
 
     mdl.mesh.update()
 
