@@ -27,12 +27,12 @@ import bpy
 bl_info = {
     "name": "Quake and Hexen II MDL format",
     "author": "Bill Currie, Victor Feitosa",
-    "blender": (2, 80, 0),
-    "version": (1, 0, 0),
+    "blender": (5, 2, 0),
+    "version": (1, 0, 1),
     "api": 35622,
     "location": "File > Import-Export",
     "description": "Import-Export Quake and HexenII MDL files (version 6 mdl files)",
-    "warning": "alpha version",
+    "warning": "beta version",
     "wiki_url": "",
     "tracker_url": "",
     "category": "Import-Export"}
