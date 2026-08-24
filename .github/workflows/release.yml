@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read addon version from bl_info
+        id: version
+        run: |
+          VERSION=$(python3 -c "
+          import ast
+          with open('__init__.py') as f:
+              tree = ast.parse(f.read(), filename='__init__.py')
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Assign) and any(t.id == 'bl_info' for t in node.targets if isinstance(t, ast.Name)):
+                  bl_info = ast.literal_eval(node.value)
+                  print('.'.join(str(part) for part in bl_info['version']))
+                  break
+          ")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build plugin zip
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          ADDON_DIR="build/quake-hexen2-mdl-export-import"
+          mkdir -p "$ADDON_DIR"
+          cp ./*.py "$ADDON_DIR/"
+          cd build
+          zip -r "../quake-hexen2-mdl-export-import-${VERSION}.zip" quake-hexen2-mdl-export-import
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: quake-hexen2-mdl-export-import-${{ steps.version.outputs.version }}.zip
