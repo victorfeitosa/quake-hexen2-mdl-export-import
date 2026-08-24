@@ -217,18 +217,34 @@ def build_shape_keys(mdl):
             make_shape_key(mdl=mdl, framenum=i)
 
 
+def action_channelbag(action, id_type, name):
+    '''
+    Blender 4.4 split F-Curves off of Action into per-slot channelbags, and
+    Blender 5.0 removed the backward-compatible action.fcurves shortcut, so
+    older Blender versions fall back to the legacy API.
+    '''
+    if not hasattr(action, "slots"):
+        return action, None
+    from bpy_extras import anim_utils
+    slot = action.slots[0] if action.slots else action.slots.new(
+        id_type=id_type, name=name)
+    return anim_utils.action_ensure_channelbag_for_slot(action, slot), slot
+
+
 def set_keys(act, data):
     '''
     Set keyframe of animation
     '''
+    channelbag, slot = action_channelbag(act, 'KEY', act.name)
     for d in data:
         key, co = d
         dp = """key_blocks["%s"].value""" % key.name
-        fc = act.fcurves.new(data_path=dp)
+        fc = channelbag.fcurves.new(data_path=dp)
         fc.keyframe_points.add(len(co))
         for i in range(len(co)):
             fc.keyframe_points[i].co = co[i]
             fc.keyframe_points[i].interpolation = 'LINEAR'
+    return slot
 
 
 def build_actions(mdl):
@@ -271,8 +287,10 @@ def build_actions(mdl):
             co = [(1.0, 0.0)]
             for k in other_keys:
                 data.append((k, co))
-        set_keys(act, data)
-        track.strips.new(act.name, start_frame, act)
+        slot = set_keys(act, data)
+        strip = track.strips.new(act.name, start_frame, act)
+        if slot is not None and hasattr(strip, "action_slot"):
+            strip.action_slot = slot
         start_frame += int(act.frame_range[1])
 
 
